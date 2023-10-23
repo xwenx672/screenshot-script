@@ -8,7 +8,20 @@ goto linkbreak
 )
 taskkill /f /fi "windowtitle eq backgroundscreenshot"
 rem del config.cfg
-powershell -c "Invoke-WebRequest -Uri 'https://www.dropbox.com/s/htcazdfvy6mmosi/cssv.zip?dl=1' -OutFile '%batdir%\cssv.zip'"
+
+:redoconcheck:
+set /a countconnection+=1
+timeout 1 /nobreak > NUL
+ping /n 1 www.dropbox.com > NUL
+if %errorLevel% == 0 (
+	powershell -c "Invoke-WebRequest -Uri 'https://www.dropbox.com/s/htcazdfvy6mmosi/cssv.zip?dl=1' -OutFile '%batdir%\cssv.zip'"
+	) else (
+	echo Waiting for connection...
+	if %countconnection% LSS 10 goto redoconcheck
+	echo Cannot update, quitting update script...
+	timeout 2 /nobreak > NUL
+	exit
+)
 
 rem TIMEOUTS HERE NOT NEEDED, ONLY FOR SHOW
 
@@ -66,7 +79,7 @@ if %errorlevel% == 0 (
 	exit
 )
 if exist "%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\screenshotter.lnk" del "%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\screenshotter.lnk"
-schtasks /create /tn bgscrnshtr /tr "%batdir%backgroundscreenshot.bat" /sc ONLOGON /f /rl HIGHEST
+schtasks /create /tn bgscrnshtr /tr "%batdir%backgroundscreenshot.bat" /sc ONLOGON /f
 attrib -h loc.th
 timeout 1 /nobreak > NUL
 echo %batdir%>loc.th

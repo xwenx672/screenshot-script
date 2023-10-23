@@ -6,16 +6,21 @@ set /a countversion=0
 set /a counttwoversion=0
 :start:
 
-set "version=v1.07"
+set "version=v1.081"
 echo Current version: %version%
 echo Checking for updates!
 
 if exist version.txt del version.txt
+:redoconcheck:
+set /a countconnection+=1
+timeout 1 /nobreak > NUL
 ping /n 1 www.dropbox.com > NUL
 if %errorLevel% == 0 (
 	powershell -c "Invoke-WebRequest -Uri 'https://www.dropbox.com/s/o72g1c2aj616yhm/version.txt?dl=1' -OutFile '%batdir%\version.txt'"
 	) else (
-	Cannot check for updates, skipping
+	echo Waiting for connection...
+	if %countconnection% LSS 5 goto redoconcheck
+	echo Cannot check for updates, skipping...
 	timeout 2 /nobreak > NUL
 	goto priority
 )
@@ -241,7 +246,6 @@ set /a delamt=%avehis%/%timer%
 
 echo Starting main script...
 if %qsu% == 0 timeout 2 /nobreak > NUL
-if %deldurbef% == 0 goto loopd
 goto loopg
 
 :lrmskip:
@@ -309,7 +313,9 @@ echo %lrmcount%
 echo.
 echo Current file ending:
 echo %filetype%
-if %deldurbef% == 0 goto lrmskip
+if %deldurbef% == 0 (
+if %count4% NEQ 0 goto lrmskip
+)
 
 :loopd:
 if not exist del.th (
@@ -319,9 +325,10 @@ timeout 1 /nobreak > NUL
 )
 for /f "delims=" %%i in ('dir /a-d /w /b "%cd%\screenshots" ^| find /v /c ""') do set files=%%i
 for /f "tokens=2 delims=:" %%a in ('findstr "deltxt:" "del.th"') do set /a deltxt=%%a
-if %files% LEQ %delqty% goto loopg
+if %files% LEQ %delqty% goto lrmskip
 if %deltxt% == 0 (
 start delete.bat %delamt%
+echo.
 echo Initiating deletion
 goto lrmskip
 ) else (
