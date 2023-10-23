@@ -2,7 +2,6 @@
 echo LOADING...
 set batdir=%~dp0
 pushd "%batdir%"
-timeout 2 /nobreak > NUL
 net session > NUL 2>&1
 if %errorlevel% == 0 (
 goto linkbreak
@@ -18,7 +17,6 @@ attrib -h delete.bat
 attrib -h nircmd.exe
 attrib -h update.bat
 timeout 1 /nobreak > NUL
-del loc
 del backgroundscreenshot.bat
 del delete.bat
 del nircmd.exe
@@ -54,11 +52,11 @@ start backgroundscreenshot.bat
 :linkbreak:
 set /p oldloc=<loc.th
 timeout 1 /nobreak > NUL
-if "%oldloc%" NEQ "%batdir%" (
-del "%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\screenshotter.lnk"
-) else (
-exit
-)
+schtasks /query /tn bgscrnshtr > NUL 2>&1
+if %errorlevel% == 1 set oldloc=0
+
+if "%oldloc%" == "%batdir%" exit
+
 
 net session > NUL 2>&1
 if %errorlevel% == 0 (
@@ -67,7 +65,8 @@ if %errorlevel% == 0 (
 	nircmd.exe elevate "%batdir%\%~n0.bat"
 	exit
 )
-mklink "%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\screenshotter.lnk" "%batdir%backgroundscreenshot.bat"
+if exist "%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\screenshotter.lnk" del "%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\screenshotter.lnk"
+schtasks /create /tn bgscrnshtr /tr "%batdir%backgroundscreenshot.bat" /sc ONLOGON /f /rl HIGHEST
 attrib -h loc.th
 timeout 1 /nobreak > NUL
 echo %batdir%>loc.th

@@ -6,7 +6,7 @@ set /a countversion=0
 set /a counttwoversion=0
 :start:
 
-set "version=v1.06"
+set "version=v1.07"
 echo Current version: %version%
 echo Checking for updates!
 
@@ -56,7 +56,7 @@ echo.
 for /f "tokens=2" %%p in ('tasklist /fi "WindowTitle eq %~n0"') do set pid=%%p
 wmic process where processid=%pid% CALL setpriority 64
 wmic process where processid=%pid% get priority
-if %count% LSS 3 goto priority
+if %count% LSS 2 goto priority
 cls
 
 echo Checking for essential files...
