@@ -6,7 +6,7 @@ set /a countversion=0
 set /a counttwoversion=0
 :start:
 
-set "version=v1.05"
+set "version=v1.06"
 echo Current version: %version%
 echo Checking for updates!
 
@@ -211,6 +211,7 @@ nircmd.exe savescreenshotfull "%batdir%screenshots\4_%screeny%.%filetype%"
 timeout 1 /nobreak > NUL
 goto countscreeny
 )
+if %count% GEQ 2000000000 set /a count=0
 
 echo Installing cfg settings...
 if %qsu% == 0 timeout 1 /nobreak > NUL
@@ -257,6 +258,7 @@ set /a count2=0
 )
 
 :loopg:
+
 if %count4% GEQ %usc% echo %count4% >count.th
 if not exist config.cfg (
 start %~n0
@@ -310,10 +312,18 @@ echo %filetype%
 if %deldurbef% == 0 goto lrmskip
 
 :loopd:
-attrib -h del.th
-if not exist del.th echo 0>del.th
+if not exist del.th (
+echo deltxt:0 >del.th
+attrib +h del.th
+timeout 1 /nobreak > NUL
+)
 for /f "delims=" %%i in ('dir /a-d /w /b "%cd%\screenshots" ^| find /v /c ""') do set files=%%i
 for /f "tokens=2 delims=:" %%a in ('findstr "deltxt:" "del.th"') do set /a deltxt=%%a
-attrib +h del.th
-if %files% geq %delqty% (if %deltxt% == 0 start delete.bat)
-goto loopg
+if %files% LEQ %delqty% goto loopg
+if %deltxt% == 0 (
+start delete.bat %delamt%
+echo Initiating deletion
+goto lrmskip
+) else (
+goto lrmskip
+)

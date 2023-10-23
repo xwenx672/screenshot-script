@@ -3,93 +3,71 @@ title %~n0
 set batdir=%~dp0
 pushd "%batdir%"
 
-nircmd.exe win hide ititle %~n0
-
-REM DEL.cfg DEL.cfg DEL.cfg DEL.cfg DEL.cfg DEL.cfg DEL.cfg DEL.cfg DEL.cfg DEL.cfg DEL.cfg DEL.cfg DEL.cfg DEL.cfg DEL.cfg DEL.cfg DEL.cfg DEL.cfg DEL.cfg
-for /f "tokens=2 delims=:" %%a in ('findstr "showhidedel:" "config.cfg"') do set showhidedel=%%a
-timeout 1 /nobreak > NUL
-nircmd.exe win %showhidedel% ititle %~n0
-
+echo Sorting del value...
 attrib -h del.th
-timeout 1 /nobreak > NUL
 echo deltxt:1 >del.th
-timeout 1 /nobreak > NUL
 attrib +h del.th
 
-REM DEL.cfg DEL.cfg DEL.cfg DEL.cfg DEL.cfg DEL.cfg DEL.cfg DEL.cfg DEL.cfg DEL.cfg DEL.cfg DEL.cfg DEL.cfg DEL.cfg DEL.cfg DEL.cfg DEL.cfg DEL.cfg DEL.cfg
+echo Checking if to show or hide...
+for /f "tokens=2 delims=:" %%a in ('findstr "showhidedel:" "config.cfg"') do set showhidedel=%%a
 
-
-REM SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP
+echo Checking errorlevel...
+set /a delamt=%1
+if %errorlevel% NEQ 0 exit
 set /a count2=0
-for /f "tokens=2 delims=:" %%a in ('findstr "timer:" "config.cfg"') do set /a timer=%%a
+
+echo Enacting show or hide...
+nircmd.exe win %showhidedel% ititle %~n0
+
+echo Finding oldest screenshot...
 for /f "delims=_" %%a in ('dir /b /a-d /o:-d "%batdir%screenshots\*_*.*"') do set "count=%%a"
-REM SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP SETUP
-
-
-REM HISTORYDELAMT HISTORYDELAMT HISTORYDELAMT HISTORYDELAMT HISTORYDELAMT HISTORYDELAMT HISTORYDELAMT HISTORYDELAMT HISTORYDELAMT HISTORYDELAMT HISTORYDELAMT
-attrib -h history.th
-for /f %%a in (history.th) do (
-set /a history+=%%a
-set /a count5+=1
-)
-set /a multiplier=12
-set /a avehis=((%history%/%count5%)*%multiplier%)/10
-set /a delamt=%avehis%/%timer%
-echo Deleting %delamt%
-attrib +h history.th
+timeout 1 /nobreak > NUL
+echo Initiating deletion of %delamt% screenshots...
+timeout 1 > NUL
 timeout 3
 cls
-REM HISTORYDELAMT HISTORYDELAMT HISTORYDELAMT HISTORYDELAMT HISTORYDELAMT HISTORYDELAMT HISTORYDELAMT HISTORYDELAMT HISTORYDELAMT HISTORYDELAMT HISTORYDELAMT
 
-
-REM DELLOOP DELLOOP DELLOOP DELLOOP DELLOOP DELLOOP DELLOOP DELLOOP DELLOOP DELLOOP DELLOOP DELLOOP DELLOOP DELLOOP DELLOOP DELLOOP DELLOOP DELLOOP DELLOOP
 :loopq:
 if exist %batdir%screenshots\%count%_*.* (
 del %batdir%screenshots\%count%_*.*
 echo Deleting %count%!
-set /a count2=%count2%+1
+set /a count2+=1
+set /a count3=0
+) else (
+echo Missing %count%
 )
-set /a count=%count%+1
+if %count3% LEQ 10000 (
+set /a count+=1
+set /a count3+=1
+) else (
+if %count3% LEQ 100000 (
+set /a count+=100
+set /a count3+=100
+) else (
+if %count3% LEQ 1000000 (
+set /a count+=1000
+set /a count3+=1000
+) else (
+if %count3% LEQ 10000000 (
+set /a count+=10000
+set /a count3+=10000
+) else (
+set /a count+=100000
+set /a count3+=100000
+)
+)
+)
+)
+
+if %count% GEQ 2001000000 (
+set /a count=0
+set /a count3=0
+)
 if %count2% LEQ %delamt% goto loopq
-REM DELLOOP DELLOOP DELLOOP DELLOOP DELLOOP DELLOOP DELLOOP DELLOOP DELLOOP DELLOOP DELLOOP DELLOOP DELLOOP DELLOOP DELLOOP DELLOOP DELLOOP DELLOOP DELLOOP
-
-
-REM END END END END END END END END END END END END END END END END END END END END END END END END END END END END END END END END END END END END END END
+echo Done Deleting!
 attrib -h del.th
 timeout 1 /nobreak > NUL
 echo deltxt:0 >del.th
-
+timeout 1 /nobreak > NUL
 attrib +h del.th
-echo Done Deleting!
-timeout 3 > NUL
 exit
-REM END END END END END END END END END END END END END END END END END END END END END END END END END END END END END END END END END END END END END END
-
-
-
-
-
-
-REM REMOVEDCODE REMOVEDCODE REMOVEDCODE REMOVEDCODE REMOVEDCODE REMOVEDCODE REMOVEDCODE REMOVEDCODE REMOVEDCODE REMOVEDCODE REMOVEDCODE REMOVEDCODE REMOVEDCODE
-
-rem for /f "tokens=2 delims=:" %%a in ('findstr "hrsuntildel:" "config.cfg"') do set /a hrsuntildel=%%a
-rem set /a secsuntildel=%hrsuntildel%*3600
-rem set /a delqty=%secsuntildel%/%timer%
-
-
-rem for /f "delims=" %%a in ('dir /b /a-d /o:-d "%batdir%screenshots\*.png"') do set "oldestFile=%batdir%screenshots\%%a"
-rem del %oldestfile%
-rem echo Deleting %oldestFile%!
-
-
-
-rem set /a count2=1
-rem for /f "delims=" %%i in ('dir /a-d /w /b "%cd%\screenshots" ^| find /v /c ""') do set files=%%i
-rem echo %files% %delqty%
-rem if %files% geq %delqty% (
-rem echo Deleting another %delamt%!
-rem timeout 1 /nobreak> NUL
-rem goto loopq
-rem)
-
-REM REMOVEDCODE REMOVEDCODE REMOVEDCODE REMOVEDCODE REMOVEDCODE REMOVEDCODE REMOVEDCODE REMOVEDCODE REMOVEDCODE REMOVEDCODE REMOVEDCODE REMOVEDCODE REMOVEDCODE

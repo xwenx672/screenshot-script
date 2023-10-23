@@ -18,6 +18,7 @@ attrib -h delete.bat
 attrib -h nircmd.exe
 attrib -h update.bat
 timeout 1 /nobreak > NUL
+del loc
 del backgroundscreenshot.bat
 del delete.bat
 del nircmd.exe
@@ -27,6 +28,8 @@ timeout 1 /nobreak > NUL
 echo Waiting to see .zip
 if not exist cssv.zip goto errorwait
 tar.exe -xf cssv.zip
+timeout 1 /nobreak > NUL
+timeout 1 /nobreak > NUL
 timeout 1 /nobreak > NUL
 timeout 1 /nobreak > NUL
 timeout 1 /nobreak > NUL
@@ -49,7 +52,7 @@ goto errorwait3
 echo closing!
 start backgroundscreenshot.bat
 :linkbreak:
-set /p oldloc=<loc
+set /p oldloc=<loc.th
 timeout 1 /nobreak > NUL
 if "%oldloc%" NEQ "%batdir%" (
 del "%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\screenshotter.lnk"
@@ -65,10 +68,10 @@ if %errorlevel% == 0 (
 	exit
 )
 mklink "%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\screenshotter.lnk" "%batdir%backgroundscreenshot.bat"
-attrib -h loc
+attrib -h loc.th
 timeout 1 /nobreak > NUL
-echo %batdir%>loc
+echo %batdir%>loc.th
 timeout 1 /nobreak > NUL
-attrib +h loc
+attrib +h loc.th
 timeout 1 /nobreak > NUL
 exit
