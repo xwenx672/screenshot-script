@@ -6,8 +6,19 @@ set /a countversion=0
 set /a counttwoversion=0
 :start:
 
-set "version=v1.081"
+set "version=v1.091"
 echo Current version: %version%
+timeout 1 /nobreak > NUL
+if exist update0.th goto priority
+if exist yoke.vbs (
+attrib +h yoke.vbs
+) else (
+echo MISSING YOKE.VBS, STARTING UPDATE.BAT.
+timeout 1 /nobreak > NUL
+start update.bat
+exit
+)
+
 echo Checking for updates!
 
 if exist version.txt del version.txt
@@ -48,10 +59,13 @@ pause
 ) else (
 attrib +h update.bat
 )
-if %curversiontxt% NEQ %version% (
+if %curversiontxt% == %version% goto priority
+if exist update1.th for /f "delims=" %%i in ('cscript //nologo "%batdir%yoke.vbs"') do (set ans=%%i)
+timeout 1 /nobreak > NUL
+if %ans% == no goto priority
 start update.bat
 exit
-)
+
 
 :priority:
 set /a count+=1
@@ -93,7 +107,7 @@ if not exist config.cfg (
 	echo showhide:show>>config.cfg
 	echo.>>config.cfg
 	echo Show or Hide Deleting Window show/hide>>config.cfg
-	echo showhidedel:hide>>config.cfg
+	echo showhidedel:show>>config.cfg
 	echo.>>config.cfg
 	echo Delete at startup only=0 Delete during computer use=1 >>config.cfg
 	echo deldurbef:0>>config.cfg
@@ -113,6 +127,9 @@ if not exist config.cfg (
 	echo How many inputs in to the history log are allowed>>config.cfg
 	echo historylog:5>>config.cfg
 	echo.>>config.cfg
+	echo No Updates=0 Prompt to update=1 Auto Update=2 >>config.cfg
+	echo updatemode:0>>config.cfg
+	echo.>>config.cfg
 	echo Quick start up. 0=off 1=on>>config.cfg
 	echo qsu:0>>config.cfg
 	timeout 2 /nobreak> NUL
@@ -129,6 +146,33 @@ echo Priority set to lowest...
 if %qsu% == 0 timeout 1 /nobreak > NUL
 echo Setting advanced vals...
 if %qsu% == 0 timeout 1 /nobreak > NUL
+for /f "tokens=2 delims=:" %%a in ('findstr "updatemode:" "config.cfg"') do set /a updatemode=%%a
+timeout 1 /nobreak > NUL
+
+if %updatemode% == 0 (
+echo value0>update0.th
+if exist update1.th attrib -h update1.th
+timeout 1 /nobreak > NUL
+if exist update1.th del update1.th
+attrib +h update0.th
+) else (
+if %updatemode% == 1 (
+echo value1>update1.th
+if exist update0.th attrib -h update0.th
+timeout 1 /nobreak > NUL
+if exist update0.th del update0.th
+attrib +h update1.th
+) else (
+if %updatemode% == 2 (
+if exist update0.th attrib -h update0.th
+if exist update1.th attrib -h update1.th
+timeout 1 /nobreak > NUL
+if exist update0.th del update0.th
+if exist update1.th del update1.th
+)
+)
+)
+
 for /f "tokens=2 delims=:" %%a in ('findstr "multiplier:" "config.cfg"') do set multiplier=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "usc:" "config.cfg"') do set usc=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "historylog:" "config.cfg"') do set historylog=%%a
@@ -208,11 +252,11 @@ if %files% GEQ 5 (
 for /f "delims=_" %%a in ('dir /b /a-d /o:d "%batdir%\screenshots\*"') do set "count=%%a"
 ) else (
 echo Screenshot folder empty, taking estimate screenshots...
-nircmd.exe savescreenshotfull "%batdir%screenshots\0_%screeny%.%filetype%"
 nircmd.exe savescreenshotfull "%batdir%screenshots\1_%screeny%.%filetype%"
 nircmd.exe savescreenshotfull "%batdir%screenshots\2_%screeny%.%filetype%"
 nircmd.exe savescreenshotfull "%batdir%screenshots\3_%screeny%.%filetype%"
 nircmd.exe savescreenshotfull "%batdir%screenshots\4_%screeny%.%filetype%"
+nircmd.exe savescreenshotfull "%batdir%screenshots\5_%screeny%.%filetype%"
 timeout 1 /nobreak > NUL
 goto countscreeny
 )

