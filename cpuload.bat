@@ -1,0 +1,79 @@
+@echo off
+set "batdir=%~dp0"
+pushd "%batdir%"
+set cpurma=0
+set cpurms=0
+set cpurm=0
+set equal=0
+set more=0
+set less=0
+if exist cput.txt (
+set /p cput=<cput.txt
+timeout 2 /nobreak > NUL
+) else (
+set /a cput=500
+echo 500 > cput.txt
+timeout 2 /nobreak > NUL
+)
+:loop:
+rem timeout 1 /nobreak > NUL
+for /f "tokens=2 delims=:" %%a in ('findstr "timer:" "config.cfg"') do set /a timer=%%a
+for /f "tokens=2 delims=:" %%a in ('findstr "compsd:" "config.cfg"') do set /a cpulim=%%a
+for /f "tokens=2 delims=:" %%a in ('findstr "deltxt:" "del.th"') do set /a deltxt=%%a
+set cpul=nothing
+for /f "tokens=2 delims== " %%C in ('wmic cpu get loadpercentage /value') do set /a cpul=%%C
+set /a trimcaphalf=%timer%*500
+if %deltxt% NEQ 4 exit
+if %cpul% == nothing goto loop
+
+
+if %cpul% GEQ %cpulim% (
+if %cpurma% LSS 1 set cpurm=0
+set /a more+=1
+set /a cpurma+=1
+set /a cpurm+=%cpurma%
+set /a cpurms=0
+)
+
+if %cpul% LEQ %cpulim% (
+if %cpurms% LSS 1 set cpurm=0
+set /a less+=1
+set /a cpurms+=1
+set /a cpurm-=%cpurms%
+set /a cpurma=0
+)
+
+
+set /a cput+=%cpurm%
+if %cput% GTR %trimcaphalf% (
+set /a cput=%trimcaphalf%
+set /a cpurm=0
+)
+if %cput% LSS 1 (
+set /a cpurm=0
+set /a cput=1
+)
+
+
+echo %cpurm% %more%/%less%
+echo %cput% > cput.txt
+goto loop
+
+
+if %equal% GTR 50 (
+set /a equal=0
+set /a less=0
+set /a more=0
+)
+
+if %more% GTR 50 (
+set /a equal=0
+set /a less=0
+set /a more=0
+)
+
+if %less% GTR 50 (
+set /a equal=0
+set /a less=0
+set /a more=0
+)
