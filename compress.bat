@@ -138,7 +138,7 @@ start "" /B "%batdir%convert" "%%F" -quality %compressquality% -strip -sharpen 0
 )
 
 if %cpulim% LSS 100 (
-set /p compsd=<cput.txt
+set /p compsd= < cput.txt
 ) else (
 set /a compsd=0
 )

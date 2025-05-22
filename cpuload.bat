@@ -29,7 +29,8 @@ if %cpul% == nothing goto loop
 
 if %cpul% GEQ %cpulim% (
 if %cpurma% LSS 1 set cpurm=0
-set /a more+=1
+if %more% LSS 100 set /a more+=1
+if %less% GTR 0 set /a less-=1
 set /a cpurma+=1
 set /a cpurm+=%cpurma%
 set /a cpurms=0
@@ -37,7 +38,8 @@ set /a cpurms=0
 
 if %cpul% LEQ %cpulim% (
 if %cpurms% LSS 1 set cpurm=0
-set /a less+=1
+if %less% LSS 100 set /a less+=1
+if %more% GTR 0 set /a more-=1
 set /a cpurms+=1
 set /a cpurm-=%cpurms%
 set /a cpurma=0
@@ -51,29 +53,11 @@ set /a cpurm=0
 )
 if %cput% LSS 1 (
 set /a cpurm=0
-set /a cput=1
+set /a cput=0
 )
 
 
-echo %cpurm% %more%/%less%
+echo Pause/Sway/Legato/Allegro
+echo %cput%/%cpurm%/%more%/%less%
 echo %cput% > cput.txt
 goto loop
-
-
-if %equal% GTR 50 (
-set /a equal=0
-set /a less=0
-set /a more=0
-)
-
-if %more% GTR 50 (
-set /a equal=0
-set /a less=0
-set /a more=0
-)
-
-if %less% GTR 50 (
-set /a equal=0
-set /a less=0
-set /a more=0
-)

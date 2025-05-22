@@ -2,6 +2,22 @@
 echo SOMETHING WENT WRONG, SCRIPT IS CLOSED.
 pause
 exit
+exit
+exit
+exit
+exit
+exit
+exit
+exit
+exit
+exit
+exit
+exit
+exit
+exit
+exit
+
+
 title %~n0
 set batdir=%~dp0
 pushd "%batdir%"
@@ -82,8 +98,8 @@ set updatevals=nodata
 set timer=nodata
 set hrsuntildel=nodata
 set showhide=nodata
-set showhidedel=nodata
-set showhidecom=nodata
+rem set showhidedel=nodata
+rem set showhidecom=nodata
 set deldurbef=nodata
 set filetype=nodata
 set multiplier=nodata
@@ -104,15 +120,17 @@ set maxagedfiles=nodata
 set compresscooloff=nodata
 set compressmultithread=nodata
 set compresssizetrigger=nodata
-rem set compresslevel=nodata
+set sizecommandfreq=nodata
 set compressquality=nodata
+set compressfilesizemin=nodata
+set compssd=nodata
 
 for /f "tokens=2 delims=:" %%a in ('findstr "updatevals:" "config.cfg"') do set /a updatevals=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "timer:" "config.cfg"') do set /a timer=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "hrsuntildel:" "config.cfg"') do set /a hrsuntildel=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "showhide:" "config.cfg"') do set showhide=%%a
-for /f "tokens=2 delims=:" %%a in ('findstr "showhidedel:" "config.cfg"') do set showhidedel=%%a
-for /f "tokens=2 delims=:" %%a in ('findstr "showhidecom:" "config.cfg"') do set showhidecom=%%a
+rem for /f "tokens=2 delims=:" %%a in ('findstr "showhidedel:" "config.cfg"') do set showhidedel=%%a
+rem for /f "tokens=2 delims=:" %%a in ('findstr "showhidecom:" "config.cfg"') do set showhidecom=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "deldurbef:" "config.cfg"') do set /a deldurbef=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "filetype:" "config.cfg"') do set filetype=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "multiplier:" "config.cfg"') do set /a multiplier=%%a
@@ -133,8 +151,11 @@ for /f "tokens=2 delims=:" %%a in ('findstr "maxagedfiles:" "config.cfg"') do se
 for /f "tokens=2 delims=:" %%a in ('findstr "compresscooloff:" "config.cfg"') do set /a compresscooloff=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "compressmultithread:" "config.cfg"') do set /a compressmultithread=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "compresssizetrigger:" "config.cfg"') do set /a compresssizetrigger=%%a
-rem for /f "tokens=2 delims=:" %%a in ('findstr "compresslevel:" "config.cfg"') do set /a compresslevel=%%a
+for /f "tokens=2 delims=:" %%a in ('findstr "sizecommandfreq:" "config.cfg"') do set /a sizecommandfreq=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "compressquality:" "config.cfg"') do set /a compressquality=%%a
+for /f "tokens=2 delims=:" %%a in ('findstr "compressfilesizemin:" "config.cfg"') do set /a compressfilesizemin=%%a
+for /f "tokens=2 delims=:" %%a in ('findstr "compsd:" "config.cfg"') do set /a compsd=%%a
+
 
 set /a nodataissue=0
 
@@ -142,7 +163,7 @@ if %updatevals% == nodata set /a updatevals=0
 if %timer% == nodata set /a timer=5
 if %hrsuntildel% == nodata set /a hrsuntildel=12
 if %showhide% == nodata set showhide=show
-if %showhidedel% == nodata set showhidedel=show
+rem if %showhidedel% == nodata set showhidedel=show
 if %deldurbef% == nodata set /a deldurbef=0
 if %filetype% == nodata set filetype=jpg
 if %multiplier% == nodata set /a multiplier=11
@@ -163,8 +184,10 @@ if %maxagedfiles% == nodata set /a maxagedfiles=14
 if %compresscooloff% == nodata set /a compresscooloff=60
 if %compressmultithread% == nodata set /a compressmultithread=100
 if %compresssizetrigger% == nodata set /a compresssizetrigger=500000
-rem if %compresslevel% == nodata set /a compresslevel=3000
 if %compressquality% == nodata set /a compressquality=85
+if %sizecommandfreq% == nodata set /a sizecommandfreq=10
+if %compressfilesizemin% == nodata set /a compressfilesizemin=500
+if %compsd% == nodata set /a compsd=90
 
 
 del config.cfg
@@ -184,9 +207,9 @@ echo.>>config.cfg
 echo Show or Hide Main Window show/hide>>config.cfg
 echo showhide:%showhide%>>config.cfg
 echo.>>config.cfg
-echo Show or Hide Deleting Window show/hide>>config.cfg
-echo showhidedel:%showhidedel%>>config.cfg
-echo.>>config.cfg
+rem echo Show or Hide Deleting Window show/hide>>config.cfg
+rem echo showhidedel:%showhidedel%>>config.cfg
+rem echo.>>config.cfg
 echo Delete at startup only=0 Delete during computer use=1 >>config.cfg
 echo deldurbef:%deldurbef%>>config.cfg
 echo.>>config.cfg
@@ -235,22 +258,34 @@ echo.>>config.cfg
 echo How long the script runs until it restarts.>>config.cfg
 echo restarttime:%restarttime%>>config.cfg
 echo.>>config.cfg
-echo Seconds inbetween compressions.>>config.cfg
-echo compresscooloff:%compresscooloff%>>config.cfg
+echo timeout between loops>>config.cfg
+echo compresscooloff:0>>config.cfg
 echo.>>config.cfg
-echo Compressions per loop, the more compressions per loop, the more compressions your computer will have to handle per loop.>>config.cfg
+echo How much CPU would you allow the script to use for compression in percentage?>>config.cfg
+echo If you put over 100, then the script will run flat out. Make sure you have great cooling before doing this.>>config.cfg
+echo compsd:%compsd%>>config.cfg
+echo.>>config.cfg
+echo how many to compress at once. I'd suggest keeping it under 100.>>config.cfg
 echo compressmultithread:%compressmultithread%>>config.cfg
 echo.>>config.cfg
-echo Size trigger in MB.>>config.cfg
+echo This setting does not change after boot.>>config.cfg
+echo The largest size a screenshot needs to be before being considered for compression in kb.>>config.cfg
+echo compressfilesizemin:%compressfilesizemin%>>config.cfg
+echo.>>config.cfg
+echo when to start compression>>config.cfg
 echo compresssizetrigger:%compresssizetrigger%>>config.cfg
 echo.>>config.cfg
-rem echo Compression level horizontal whilst maintaining aspect ratio.>>config.cfg
-rem echo compresslevel:%compresslevel%>>config.cfg
-rem echo.>>config.cfg
-echo Compression quality out of 100. The lower the more compression. >>config.cfg
+echo Compression value in percent>>config.cfg
 echo compressquality:%compressquality%>>config.cfg
 echo.>>config.cfg
-timeout 1 /nobreak > NUL
+echo How often the size command is ran on lrmloops.>>config.cfg
+echo Note, when showhide=hide the size command is not ran at all except on startup.>>config.cfg
+echo The Size command is very resource intensive. Difference can be seen in the trim value.>>config.cfg
+echo So if you don't want it to run at all except on start-up, make it a higher value than the restarttime value.>>config.cfg
+echo When the size command is ran, lrmcapmax is set to 1, for that lrmloop only.>>config.cfg
+echo sizecommandfreq:%sizecommandfreq%>>config.cfg
+echo.>>config.cfg
+timeout 2 /nobreak > NUL
 start backgroundscreenshot.bat
 
 :linkbreak:

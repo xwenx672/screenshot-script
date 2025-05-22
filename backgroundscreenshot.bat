@@ -73,8 +73,8 @@ set updatevals=nodata
 set timer=nodata
 set hrsuntildel=nodata
 set showhide=nodata
-set showhidedel=nodata
-set showhidecom=nodata
+rem set showhidedel=nodata
+rem set showhidecom=nodata
 set deldurbef=nodata
 set filetype=nodata
 set multiplier=nodata
@@ -104,8 +104,8 @@ for /f "tokens=2 delims=:" %%a in ('findstr "updatevals:" "config.cfg"') do set 
 for /f "tokens=2 delims=:" %%a in ('findstr "timer:" "config.cfg"') do set /a timer=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "hrsuntildel:" "config.cfg"') do set /a hrsuntildel=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "showhide:" "config.cfg"') do set showhide=%%a
-for /f "tokens=2 delims=:" %%a in ('findstr "showhidedel:" "config.cfg"') do set showhidedel=%%a
-for /f "tokens=2 delims=:" %%a in ('findstr "showhidecom:" "config.cfg"') do set showhidecom=%%a
+rem for /f "tokens=2 delims=:" %%a in ('findstr "showhidedel:" "config.cfg"') do set showhidedel=%%a
+rem for /f "tokens=2 delims=:" %%a in ('findstr "showhidecom:" "config.cfg"') do set showhidecom=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "deldurbef:" "config.cfg"') do set /a deldurbef=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "filetype:" "config.cfg"') do set filetype=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "multiplier:" "config.cfg"') do set /a multiplier=%%a
@@ -136,8 +136,8 @@ if %updatevals% == nodata set /a nodataissue=1
 if %timer% == nodata set /a nodataissue=1
 if %hrsuntildel% == nodata set /a nodataissue=1
 if %showhide% == nodata set /a nodataissue=1
-if %showhidedel% == nodata set /a nodataissue=1
-if %showhidecom% == nodata set /a nodataissue=1
+rem if %showhidedel% == nodata set /a nodataissue=1
+rem if %showhidecom% == nodata set /a nodataissue=1
 if %deldurbef% == nodata set /a nodataissue=1
 if %filetype% == nodata set /a nodataissue=1
 if %multiplier% == nodata set /a nodataissue=1
