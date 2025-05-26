@@ -27,7 +27,7 @@ goto linkbreak
 )
 REM tasklist /v | findstr "backgroundscreenshot"
 REM IF %ERRORLEVEL% EQU 0 taskkill /f /fi "windowtitle eq backgroundscreenshot"
-
+if exist run*.th del run*.th
 nircmd.exe win hide ititle %~n0
 echo LOADING...
 echo DO NOT CLOSE...
@@ -100,7 +100,7 @@ set hrsuntildel=nodata
 set showhide=nodata
 rem set showhidedel=nodata
 rem set showhidecom=nodata
-set deldurbef=nodata
+rem set deldurbef=nodata
 set filetype=nodata
 set multiplier=nodata
 set usc=nodata
@@ -123,7 +123,8 @@ set compresssizetrigger=nodata
 set sizecommandfreq=nodata
 set compressquality=nodata
 set compressfilesizemin=nodata
-set compssd=nodata
+set compsd=nodata
+set ran=nodata
 
 for /f "tokens=2 delims=:" %%a in ('findstr "updatevals:" "config.cfg"') do set /a updatevals=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "timer:" "config.cfg"') do set /a timer=%%a
@@ -131,7 +132,7 @@ for /f "tokens=2 delims=:" %%a in ('findstr "hrsuntildel:" "config.cfg"') do set
 for /f "tokens=2 delims=:" %%a in ('findstr "showhide:" "config.cfg"') do set showhide=%%a
 rem for /f "tokens=2 delims=:" %%a in ('findstr "showhidedel:" "config.cfg"') do set showhidedel=%%a
 rem for /f "tokens=2 delims=:" %%a in ('findstr "showhidecom:" "config.cfg"') do set showhidecom=%%a
-for /f "tokens=2 delims=:" %%a in ('findstr "deldurbef:" "config.cfg"') do set /a deldurbef=%%a
+rem for /f "tokens=2 delims=:" %%a in ('findstr "deldurbef:" "config.cfg"') do set /a deldurbef=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "filetype:" "config.cfg"') do set filetype=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "multiplier:" "config.cfg"') do set /a multiplier=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "usc:" "config.cfg"') do set /a usc=%%a
@@ -155,7 +156,7 @@ for /f "tokens=2 delims=:" %%a in ('findstr "sizecommandfreq:" "config.cfg"') do
 for /f "tokens=2 delims=:" %%a in ('findstr "compressquality:" "config.cfg"') do set /a compressquality=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "compressfilesizemin:" "config.cfg"') do set /a compressfilesizemin=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "compsd:" "config.cfg"') do set /a compsd=%%a
-
+for /f "tokens=2 delims=:" %%a in ('findstr "ran:" "config.cfg"') do set /a ran=%%a
 
 set /a nodataissue=0
 
@@ -164,7 +165,7 @@ if %timer% == nodata set /a timer=5
 if %hrsuntildel% == nodata set /a hrsuntildel=12
 if %showhide% == nodata set showhide=show
 rem if %showhidedel% == nodata set showhidedel=show
-if %deldurbef% == nodata set /a deldurbef=0
+rem if %deldurbef% == nodata set /a deldurbef=0
 if %filetype% == nodata set filetype=jpg
 if %multiplier% == nodata set /a multiplier=11
 if %usc% == nodata set /a usc=3600
@@ -188,7 +189,7 @@ if %compressquality% == nodata set /a compressquality=85
 if %sizecommandfreq% == nodata set /a sizecommandfreq=10
 if %compressfilesizemin% == nodata set /a compressfilesizemin=500
 if %compsd% == nodata set /a compsd=90
-
+if %ran% == nodata set /a ran=0
 
 del config.cfg
 timeout 1 /nobreak > NUL
@@ -210,9 +211,9 @@ echo.>>config.cfg
 rem echo Show or Hide Deleting Window show/hide>>config.cfg
 rem echo showhidedel:%showhidedel%>>config.cfg
 rem echo.>>config.cfg
-echo Delete at startup only=0 Delete during computer use=1 >>config.cfg
-echo deldurbef:%deldurbef%>>config.cfg
-echo.>>config.cfg
+rem echo Delete at startup only=0 Delete during computer use=1 >>config.cfg
+rem echo deldurbef:%deldurbef%>>config.cfg
+rem echo.>>config.cfg
 echo File Type>>config.cfg
 echo filetype:%filetype%>>config.cfg
 echo.>>config.cfg
@@ -284,6 +285,10 @@ echo The Size command is very resource intensive. Difference can be seen in the 
 echo So if you don't want it to run at all except on start-up, make it a higher value than the restarttime value.>>config.cfg
 echo When the size command is ran, lrmcapmax is set to 1, for that lrmloop only.>>config.cfg
 echo sizecommandfreq:%sizecommandfreq%>>config.cfg
+echo.>>config.cfg
+echo If 1, then screenshots will be randomly chosen during deletion. >>config.cfg
+echo If 0, screenshots will be deleted starting from the lowest ID, and progress incremetally. >>config.cfg
+echo ran:%compressquality%>>config.cfg
 echo.>>config.cfg
 timeout 2 /nobreak > NUL
 start backgroundscreenshot.bat

@@ -3,35 +3,25 @@ rem title %~n0
 setlocal EnableDelayedExpansion
 set batdir=%~dp0
 pushd "%batdir%"
-echo Sorting del value...
-attrib -h del.th
-echo deltxt:1 >del.th
-attrib +h del.th
+rem echo Sorting del value...
+rem attrib -h del.th
+rem echo deltxt:1 >del.th
+rem attrib +h del.th
 
 for /f "tokens=2 delims=:" %%a in ('findstr "maxagedfiles:" "config.cfg"') do set maxagedfiles=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "ran:" "config.cfg"') do set ran=%%a
 
 
-
-
-echo Deleting oldest screenshots...
+echo Deleting screenshots older than %maxagedfiles% days...
 
 forfiles /p "screenshots" /s /m *.* /d -%maxagedfiles% /c "cmd /c echo Deleting @file! && del @path"
+cls
+echo Done!
+set /a delamt=%1
+set /a delqty=%2
 
 
 
-echo Checking errorlevel...
-if "%~1"=="" (
-    set /a delamt=1000
-) else (
-    set /a delamt=%1
-)
-
-if "%~2"=="" (
-    set /a delqty=1000
-) else (
-    set /a delqty=%2
-)
 
 set /a count2=0
 set /a targetscreenshot=0
@@ -39,7 +29,7 @@ set /a balance=1
 set /a z=0
 set /a twist=1
 
-for /f "tokens=2 delims=:" %%a in ('findstr "deldurbef:" "config.cfg"') do set /a deldurbef=%%a
+rem for /f "tokens=2 delims=:" %%a in ('findstr "deldurbef:" "config.cfg"') do set /a deldurbef=%%a
 for /f "delims=" %%i in ('dir /a-d /w /b "%cd%\screenshots" ^| find /v /c ""') do set files=%%i
 echo Finding oldest screenshot...
 for /f "delims=_" %%a in ('dir /b /a-d /o:-d "%batdir%screenshots\*_*.*"') do set "count=%%a"
@@ -49,16 +39,12 @@ timeout 2 /nobreak > NUL
 set countold=%count%
 
 echo Initiating deletion of %delamt% screenshots...
-
-
-:loopdelete:
-if %ran% == 0 goto loopstandard
-
+if 
 echo OLD: %countold%
 echo NEW: %countnew%
-
-
-
+:deleteagain:
+if %ran% == 0 goto loopstandard
+:loopdelete:
 set /a z+=1
 set /a f=0
 set /a e=0
@@ -68,39 +54,48 @@ set /a e=%random% %% 3 + %balance%
 set /a f+=1
 set /a targetscreenshot+=%random% %% %files%
 if %f% LSS %e% goto loopran
-if %balance% GEQ 4 set /a twist+=1
-if %balance% LSS 3 set /a twist-=1
+if %targetscreenshot% LSS 0 (
+set /a f=0
+goto loopran
+)
+nircmd.exe wait 100
+echo %targetscreenshot% %z% %balance% %twist%
+if %balance% GEQ 5 set /a twist+=1
+if %balance% LSS 4 set /a twist-=1
 set /a targetscreenshot=%targetscreenshot%*%twist%
 
 if %targetscreenshot% GTR %countnew% (
 set /a z-=1
 if %balance% GTR 1 set /a balance-=1
 rem echo HIGH %balance% %targetscreenshot%
-goto loopdelete
+goto loopran
 )
 
 if %targetscreenshot% LSS %countold% (
 set /a z-=1
 set /a balance+=1
 rem echo LOW %balance% %targetscreenshot%
-goto loopdelete
+goto loopran
 )
 
 if not exist "%batdir%\screenshots\%targetscreenshot%*" (
-echo Does not exist
-set /a z-=1
-goto loopdelete
+rem echo Does not exist
+goto loopran
 )
 
-del "%batdir%\screenshots\%targetscreenshot%*"
+rem del "%batdir%\screenshots\%targetscreenshot%*"
 echo deleted! %targetscreenshot% %z% %balance% %twist%
 if %z% LSS %delamt% goto loopdelete
+goto loopdelete
 goto end
 
 
 
-
 :loopstandard:
+for /f "delims=" %%i in ('dir /a-d /w /b "%cd%\screenshots" ^| find /v /c ""') do set files=%%i
+
+if %files% LSS %delqty% goto endl
+
 if exist "%batdir%screenshots\%count%*" (
 del "%batdir%screenshots\%count%*"
 echo Deleting %count%!
@@ -142,9 +137,9 @@ for /f "delims=_" %%a in ('dir /b /a-d /o:-d "%batdir%screenshots\*_*.*"') do se
 set /a count2=0
 set /a count3=0
 timeout 1 /nobreak > NUL
-goto loopdelete
+goto loopstandard
 )
-
+:endl:
 
 rem COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS 
 
@@ -219,13 +214,13 @@ timeout 3 /nobreak > NUL
 move "%batdir%compressed\*.*" "%batdir%screenshots\" > NUL
 timeout 3 /nobreak > NUL
 )
-attrib -h del.th
-timeout 1 /nobreak > NUL
-echo deltxt:0 >del.th
-timeout 1 /nobreak > NUL
-attrib +h del.th
-timeout 1 /nobreak > NUL
-rmdir compressed
+rem attrib -h del.th
+rem timeout 1 /nobreak > NUL
+rem echo deltxt:0 >del.th
+rem timeout 1 /nobreak > NUL
+rem attrib +h del.th
+rem timeout 1 /nobreak > NUL
+if exist compressed rmdir compressed
 exit
 
 

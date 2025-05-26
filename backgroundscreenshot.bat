@@ -75,7 +75,7 @@ set hrsuntildel=nodata
 set showhide=nodata
 rem set showhidedel=nodata
 rem set showhidecom=nodata
-set deldurbef=nodata
+rem set deldurbef=nodata
 set filetype=nodata
 set multiplier=nodata
 set usc=nodata
@@ -99,6 +99,7 @@ set sizecommandfreq=nodata
 set compressquality=nodata
 set compressfilesizemin=nodata
 set compssd=nodata
+set ran=nodata
 
 for /f "tokens=2 delims=:" %%a in ('findstr "updatevals:" "config.cfg"') do set /a updatevals=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "timer:" "config.cfg"') do set /a timer=%%a
@@ -106,7 +107,7 @@ for /f "tokens=2 delims=:" %%a in ('findstr "hrsuntildel:" "config.cfg"') do set
 for /f "tokens=2 delims=:" %%a in ('findstr "showhide:" "config.cfg"') do set showhide=%%a
 rem for /f "tokens=2 delims=:" %%a in ('findstr "showhidedel:" "config.cfg"') do set showhidedel=%%a
 rem for /f "tokens=2 delims=:" %%a in ('findstr "showhidecom:" "config.cfg"') do set showhidecom=%%a
-for /f "tokens=2 delims=:" %%a in ('findstr "deldurbef:" "config.cfg"') do set /a deldurbef=%%a
+rem for /f "tokens=2 delims=:" %%a in ('findstr "deldurbef:" "config.cfg"') do set /a deldurbef=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "filetype:" "config.cfg"') do set filetype=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "multiplier:" "config.cfg"') do set /a multiplier=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "usc:" "config.cfg"') do set /a usc=%%a
@@ -130,6 +131,7 @@ for /f "tokens=2 delims=:" %%a in ('findstr "sizecommandfreq:" "config.cfg"') do
 for /f "tokens=2 delims=:" %%a in ('findstr "compressquality:" "config.cfg"') do set /a compressquality=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "compressfilesizemin:" "config.cfg"') do set /a compressfilesizemin=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "compsd:" "config.cfg"') do set /a compsd=%%a
+for /f "tokens=2 delims=:" %%a in ('findstr "ran:" "config.cfg"') do set /a ran=%%a
 
 set /a nodataissue=0
 if %updatevals% == nodata set /a nodataissue=1
@@ -138,7 +140,7 @@ if %hrsuntildel% == nodata set /a nodataissue=1
 if %showhide% == nodata set /a nodataissue=1
 rem if %showhidedel% == nodata set /a nodataissue=1
 rem if %showhidecom% == nodata set /a nodataissue=1
-if %deldurbef% == nodata set /a nodataissue=1
+rem if %deldurbef% == nodata set /a nodataissue=1
 if %filetype% == nodata set /a nodataissue=1
 if %multiplier% == nodata set /a nodataissue=1
 if %usc% == nodata set /a nodataissue=1
@@ -162,6 +164,7 @@ if %sizecommandfreq% == nodata set /a nodataissue=1
 if %compressquality% == nodata set /a nodataissue=1
 if %compressfilesizemin% == nodata set /a nodataissue=1
 if %compsd% == nodata set /a nodataissue=1
+if %ran% == nodata set /a nodataissue=1
 
 if %nodataissue% == 1 (
 start update.bat
@@ -250,9 +253,9 @@ set /a trimcap=%timer%*%lagcompensation%
 set /a trim=%trimcap%
 set /a trimcapset=%trimcap%
 
-if exist del.th attrib -h del.th
-echo deltxt:2>del.th
-attrib +h del.th
+rem if exist del.th attrib -h del.th
+rem echo deltxt:2>del.th
+rem attrib +h del.th
 
 echo Checking and updating histories...
 if not exist trimhistory.th goto skiptrimhistory
@@ -336,7 +339,7 @@ goto countscreeny
 )
 for /f "delims=_" %%a in ('dir /b /a-d /o:d "%batdir%\screenshots\*"') do set "count=%%a"
 
-echo %count%
+rem echo %count%
 
 
 if %count% GEQ 2000000000 set /a count=0
@@ -349,14 +352,15 @@ set /a count3+=1
 )
 set /a average=(%filesize%/%count3%)
 
-echo Deleting screenshots older than %maxagedfiles%
-if not exist del.th (
-echo deltxt:2 >del.th
-attrib +h del.th
-timeout 1 /nobreak > NUL
-)
-start "" /B deleteday.bat %maxagedfiles%
-set /a deltxt=2
+echo Deleting screenshots if required...
+rem if not exist del.th (
+rem echo deltxt:0 >del.th
+rem attrib +h del.th
+rem timeout 1 /nobreak > NUL
+rem )
+rem start "" /B 
+set /a deltxt=0
+rem set /a deltxt=2
 echo Starting script...
 
 :priority:
@@ -401,7 +405,7 @@ if %updatevals% == 1 (
 for /f "tokens=2 delims=:" %%a in ('findstr "timer:" "config.cfg"') do set /a timer=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "hrsuntildel:" "config.cfg"') do set /a hrsuntildel=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "showhide:" "config.cfg"') do set showhide=%%a
-for /f "tokens=2 delims=:" %%a in ('findstr "deldurbef:" "config.cfg"') do set /a deldurbef=%%a
+rem for /f "tokens=2 delims=:" %%a in ('findstr "deldurbef:" "config.cfg"') do set /a deldurbef=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "filetype:" "config.cfg"') do set filetype=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "multiplier:" "config.cfg"') do set /a multiplier=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "usc:" "config.cfg"') do set /a usc=%%a
@@ -414,6 +418,7 @@ for /f "tokens=3 delims=:" %%a in ('findstr "lrmcap:" "config.cfg"') do set /a l
 for /f "tokens=2 delims=:" %%a in ('findstr "lagcompcooldowncfg:" "config.cfg"') do set /a lagcompcooldowncfg=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "restarttime:" "config.cfg"') do set /a restarttime=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "sizecommandfreq:" "config.cfg"') do set /a sizecommandfreq=%%a
+for /f "tokens=2 delims=:" %%a in ('findstr "ran:" "config.cfg"') do set /a ran=%%a
 set /a lrmcapminp1=%lrmcapmin%+1
 )
 
@@ -497,13 +502,13 @@ for /f "delims=" %%i in ('dir /a-d /w /b "%cd%\screenshots" ^| find /v /c ""') d
 cls
 echo %version%
 echo.
-if %deldurbef% == 0 (
+rem if %deldurbef% == 0 (
 echo Deleting **on boot** when %delqty% screenshots are reached: %delamt%
-) else if %deldurbef% == 1 (
-echo Deleting **during computer use** when %delqty% screenshots are reached: %delamt%
-) else if %deldurbef% == 2 (
-echo Deleting **during computer use recursively** when %delqty% screenshots are reached: %delamt%
-)
+rem ) else if %deldurbef% == 1 (
+rem echo Deleting **during computer use** when %delqty% screenshots are reached: %delamt%
+rem ) else if %deldurbef% == 2 (
+rem echo Deleting **during computer use recursively** when %delqty% screenshots are reached: %delamt%
+rem )
 echo.
 echo %filetype% number:
 echo %count%
@@ -526,9 +531,10 @@ set /a pastefirstoutput=0
 cd pasteoutputs
 echo %version% >>pasteoutput%screeny%.txt
 echo. >>pasteoutput%screeny%.txt
-if %deldurbef% == 0 (echo Deleting **on boot** when %delqty% screenshots are reached: %delamt% >>pasteoutput%screeny%.txt)
-if %deldurbef% == 1 (echo Deleting **during computer use** when %delqty% screenshots are reached: %delamt% >>pasteoutput%screeny%.txt)
-if %deldurbef% == 2 (echo Deleting **during computer use recursively** when %delqty% screenshots are reached: %delamt% >>pasteoutput%screeny%.txt)
+echo Deleting **on boot** when %delqty% screenshots are reached: %delamt% >>pasteoutput%screeny%.txt
+rem if %deldurbef% == 0 (echo Deleting **on boot** when %delqty% screenshots are reached: %delamt% >>pasteoutput%screeny%.txt)
+rem if %deldurbef% == 1 (echo Deleting **during computer use** when %delqty% screenshots are reached: %delamt% >>pasteoutput%screeny%.txt)
+rem if %deldurbef% == 2 (echo Deleting **during computer use recursively** when %delqty% screenshots are reached: %delamt% >>pasteoutput%screeny%.txt)
 echo. >>pasteoutput%screeny%.txt
 echo %filetype% number: >>pasteoutput%screeny%.txt
 echo %count% >>pasteoutput%screeny%.txt
@@ -550,39 +556,14 @@ cd..
 
 
 
-for /f "tokens=2 delims=:" %%a in ('findstr "deltxt:" "del.th"') do set /a deltxt=%%a
+
 
 set /a trimscreenyold=%trimscreenynew%
 
-if %deltxt% == 2 goto lrmskip
-
-if %deltxt% == 3 goto lrmskip
-
-if %deltxt% == 4 goto lrmskip
-
-if %deltxt% == 5 (
-attrib -h del.th
-echo deltxt:0 >del.th
-attrib +h del.th
-timeout 1 /nobreak > NUL
-)
-
-if %deldurbef% == 0 (
-if %count4% NEQ 0 goto lrmskip
-)
-
-:loopd:
-if not exist del.th (
-echo deltxt:0 >del.th
-attrib +h del.th
-timeout 1 /nobreak > NUL
-)
-for /f "delims=" %%i in ('dir /a-d /w /b "%cd%\screenshots" ^| find /v /c ""') do set files=%%i
-for /f "tokens=2 delims=:" %%a in ('findstr "deltxt:" "del.th"') do set /a deltxt=%%a
-if %files% LEQ %delqty% goto lrmskip
-if %deltxt% == 0 (
-start "" /B delete.bat %delamt% %delqty%
-echo.
-echo Initiating deletion
+if %deltxt% LEQ 10 (
+set /a deltxt+=1
+) else if %deltxt% == 11 (
+start delete.bat %delamt% %delqty%
+set /a deltxt=100
 )
 goto lrmskip
