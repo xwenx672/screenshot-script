@@ -559,7 +559,10 @@ cd..
 
 
 set /a trimscreenyold=%trimscreenynew%
-
+rem if exist 9.txt (
+rem set /a deltxt=11
+rem del 9.txt
+rem )
 if %deltxt% LEQ 10 (
 set /a deltxt+=1
 ) else if %deltxt% == 11 (

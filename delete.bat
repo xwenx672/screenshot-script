@@ -11,12 +11,15 @@ rem attrib +h del.th
 for /f "tokens=2 delims=:" %%a in ('findstr "maxagedfiles:" "config.cfg"') do set maxagedfiles=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "ran:" "config.cfg"') do set ran=%%a
 
-
-echo Deleting screenshots older than %maxagedfiles% days...
+echo Daydeleting screenshots older than %maxagedfiles% days...
+timeout 5 /nobreak > NUL
 
 forfiles /p "screenshots" /s /m *.* /d -%maxagedfiles% /c "cmd /c echo Deleting @file! && del @path"
-cls
-echo Done!
+rem cls
+echo.
+echo Done Daydeleting!
+echo.
+echo.
 set /a delamt=%1
 set /a delqty=%2
 
@@ -31,19 +34,23 @@ set /a twist=1
 
 rem for /f "tokens=2 delims=:" %%a in ('findstr "deldurbef:" "config.cfg"') do set /a deldurbef=%%a
 for /f "delims=" %%i in ('dir /a-d /w /b "%cd%\screenshots" ^| find /v /c ""') do set files=%%i
-echo Finding oldest screenshot...
+rem echo Finding oldest screenshot...
 for /f "delims=_" %%a in ('dir /b /a-d /o:-d "%batdir%screenshots\*_*.*"') do set "count=%%a"
-echo Finding newest screenshot...
+rem echo Finding newest screenshot...
 for /f "delims=_" %%a in ('dir /b /a-d /o:d "%batdir%screenshots\*_*.*"') do set "countnew=%%a"
 timeout 2 /nobreak > NUL
 set countold=%count%
-
+echo Deleting screenshots over %delqty%...
+echo.
+timeout 5 /nobreak > NUL
+if %files% LSS %delqty% goto endl
 echo Initiating deletion of %delamt% screenshots...
-if 
+
 echo OLD: %countold%
 echo NEW: %countnew%
 :deleteagain:
-if %ran% == 0 goto loopstandard
+rem if %ran% == 0 goto loopstandard
+goto loopstandard
 :loopdelete:
 set /a z+=1
 set /a f=0
@@ -140,7 +147,9 @@ timeout 1 /nobreak > NUL
 goto loopstandard
 )
 :endl:
-
+echo Done Deleting!
+echo.
+echo.
 rem COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS 
 
 
@@ -160,23 +169,22 @@ echo 500 > cput.txt
 for /f "tokens=2 delims=:" %%a in ('findstr "compressfilesizemin:" "config.cfg"') do set /a compressfilesizemin=%%a
 set /a compressfilesizemin=%compressfilesizemin%*1000
 
-echo Finding oldest screenshot...
+rem echo Finding oldest screenshot...
 for /f "delims=_" %%a in ('dir /b /a-d /o:-d "%batdir%screenshots\*_*.*"') do set "count=%%a"
 
-echo Launching cpuload checker...
+rem echo Launching cpuload checker...
 start "" /B cpuload.bat
 
 
-echo Checking for compressed folder...
+rem echo Checking for compressed folder...
 if exist %batdir%compressed\* (
 powershell -ExecutionPolicy Bypass -File "%batdir%settimestamps.ps1" -Folder "%batdir%compressed"
 timeout 2 /nobreak > NUL
 move "%batdir%compressed\*.*" "%batdir%screenshots\" > NUL
 timeout 2 /nobreak > NUL
-) else (
-mkdir compressed
 )
-echo Initiating compression of screenshots...
+echo Compressing screenshots ^> %compressfilesizemin%MB when screenshots folder ^> %compresssizetrigger%MB
+echo.
 :loopc:
 for /f "tokens=2 delims=:" %%a in ('findstr "compresscooloff:" "config.cfg"') do set /a compresscooloff=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "compressmultithread:" "config.cfg"') do set /a compressmultithread=%%a
@@ -185,27 +193,30 @@ for /f "tokens=2 delims=:" %%a in ('findstr "compressquality:" "config.cfg"') do
 for /f "tokens=2 delims=:" %%a in ('findstr "compsd:" "config.cfg"') do set /a cpulim=%%a
 
 
-echo Compress trigger: %compressfilesizemin%
+rem echo Compress trigger: %compressfilesizemin%
 
 
 set /a count2=0
 set /a sizeMBA=0
 set /a sizeMBB=0
 set /a sizeMB=0
-for /f %%A in ('powershell -command "(Get-ChildItem -Path 'screenshots' -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB"') do set /a sizeMBA=%%A
-for /f %%A in ('powershell -command "(Get-ChildItem -Path 'compressed' -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB"') do set /a sizeMBB=%%A
-set /a sizeMB=%sizeMBA%+%sizeMBB%
-echo Size of folder: %sizeMB%
 
-echo %sizeMB% GTR %compresssizetrigger%
+for /f %%A in ('powershell -command "(Get-ChildItem -Path 'screenshots' -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB"') do set /a sizeMBA=%%A > NUL
+
+if exist compressed for /f %%A in ('powershell -command "(Get-ChildItem -Path 'compressed' -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB"') do set /a sizeMBB=%%A > NUL
+set /a sizeMB=%sizeMBA%+%sizeMBB%
+rem echo Size of folder: %sizeMB%
 
 if %sizeMB% GTR %compresssizetrigger% (
-echo compressfilesizemin: %compressfilesizemin%
+if not exist compressed mkdir compressed
+echo Compressing screenshots over %compressfilesizemin%MB 
+echo When %sizeMB% ^> %compresssizetrigger%MB
 if %compresscooloff% GTR 0 timeout %compresscooloff% >nul
 goto loopcompression
 )
-
+echo.
 echo Done Compressing!
+echo.
 :cannotcompress:
 :nevercompressed:
 if exist %batdir%compressed\* (
@@ -221,6 +232,7 @@ rem timeout 1 /nobreak > NUL
 rem attrib +h del.th
 rem timeout 1 /nobreak > NUL
 if exist compressed rmdir compressed
+
 exit
 
 
