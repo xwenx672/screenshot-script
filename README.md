@@ -26,9 +26,9 @@ I'll improve these instructions soon, but for now here is a rough install guide.
 All you actually need is the update.bat. Drag this in to a folder named with no spaces in the name. Run the update.bat within this folder, and the app will install in this location.
 
 ## Known bugs/issues/limitations:
-The script does install and keeps itself working using the task scheduler. The task scheduler by default when installing via commands has the setting where if the computer is on battery, the script will not start. This currently needs to be manually changed by you to work.
+The script does install and keeps itself working using the task scheduler. The task scheduler by default when installing via commands has the setting where if the computer is on battery, the script will not start. This currently needs to be manually changed by you to work, but only once.
 
-Antiviruses do not like this script. Anything that is not windows defender will likely quarantine this script in some manner. Just all the files that get blocked to exist if possible
+Antiviruses do not like this script. Anything that is not windows defender will likely quarantine this script in some manner. Just allow all the files that get blocked to exist if possible.
 
 Admin privilegies are required for install.
 
