@@ -40,7 +40,21 @@ If you have dropbox blocked somehow via your isp or your router, this script wil
 This script makes extensive use of the following external software. Full credit goes to their respective developers:
 
 - **[nircmd.exe](https://www.nirsoft.net/utils/nircmd.html)**  
-  Developed by Nir Sofer at [nirsoft.net](https://www.nirsoft.net), this utility is used extensively throughout the script.
+  Developed by Nir Sofer at [nirsoft.net](https://www.nirsoft.net), this utility is used extensively throughout the script.  
+  Used unmodified under NirSoft's freeware terms for personal and non-commercial use only.
 
 - **[ImageMagick](https://imagemagick.org/)**  
-  Developed by the ImageMagick Studio LLC, this powerful image processing toolkit is also heavily utilised in the script.
+  Developed by the ImageMagick Studio LLC, this powerful image processing toolkit is also heavily utilised in the script.  
+  Used under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+
+## License
+
+This project is licensed under the **Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License (CC BY-NC-ND 4.0)**.
+
+- You **may not use** this project or its components **for commercial purposes**.
+- You **may not modify or redistribute** this project without **explicit permission**.
+- You **must credit** the original author (xwenx672) when referencing or sharing it.
+
+For full license terms, see the [LICENSE](./LICENSE) file or visit  
+[https://creativecommons.org/licenses/by-nc-nd/4.0/](https://creativecommons.org/licenses/by-nc-nd/4.0/)
+
