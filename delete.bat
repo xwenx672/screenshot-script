@@ -1,5 +1,8 @@
 @echo off
 rem title %~n0
+echo 'ERROR' or 'MISSING OPERATOR' text is normal.
+echo ########################################
+echo.
 setlocal EnableDelayedExpansion
 set batdir=%~dp0
 pushd "%batdir%"
@@ -18,6 +21,7 @@ forfiles /p "screenshots" /s /m *.* /d -%maxagedfiles% /c "cmd /c echo Deleting 
 rem cls
 echo.
 echo Done Daydeleting!
+echo ########################################
 echo.
 echo.
 set /a delamt=%1
@@ -37,20 +41,21 @@ for /f "delims=" %%i in ('dir /a-d /w /b "%cd%\screenshots" ^| find /v /c ""') d
 rem echo Finding oldest screenshot...
 for /f "delims=_" %%a in ('dir /b /a-d /o:-d "%batdir%screenshots\*_*.*"') do set "count=%%a"
 rem echo Finding newest screenshot...
-for /f "delims=_" %%a in ('dir /b /a-d /o:d "%batdir%screenshots\*_*.*"') do set "countnew=%%a"
 timeout 2 /nobreak > NUL
-set countold=%count%
-echo Deleting screenshots over %delqty%...
+
+
+
+:deleteagain:
+rem if %ran% == 0 goto loopstandard
+echo Deleting %delamt% screenshots if stored screenshots are ^> %delqty%...
 echo.
 timeout 5 /nobreak > NUL
 if %files% LSS %delqty% goto endl
-echo Initiating deletion of %delamt% screenshots...
-
+goto loopstandard
 echo OLD: %countold%
 echo NEW: %countnew%
-:deleteagain:
-rem if %ran% == 0 goto loopstandard
-goto loopstandard
+for /f "delims=_" %%a in ('dir /b /a-d /o:d "%batdir%screenshots\*_*.*"') do set "countnew=%%a"
+set countold=%count%
 :loopdelete:
 set /a z+=1
 set /a f=0
@@ -99,13 +104,13 @@ goto end
 
 
 :loopstandard:
-for /f "delims=" %%i in ('dir /a-d /w /b "%cd%\screenshots" ^| find /v /c ""') do set files=%%i
+rem for /f "delims=" %%i in ('dir /a-d /w /b "%cd%\screenshots" ^| find /v /c ""') do set files=%%i
 
 if %files% LSS %delqty% goto endl
 
 if exist "%batdir%screenshots\%count%*" (
 del "%batdir%screenshots\%count%*"
-echo Deleting %count%!
+echo Deleting %count%! %delqty% / %count2%
 set /a count2+=1
 set /a count3=0
 ) else (
@@ -148,10 +153,11 @@ goto loopstandard
 )
 :endl:
 echo Done Deleting!
+echo ########################################
 echo.
 echo.
 rem COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS 
-
+if not exist compress.th echo. > compress.th
 
 
 set /a count=2000010000
@@ -159,12 +165,12 @@ set /a count2=0
 set /a valcount=0
 set /a count10=0
 set /a "screenysize=0"
-if exist cput.txt (
-set /p cput=<cput.txt
+if exist cput.th (
+set /p cput=<cput.th
 timeout 2 /nobreak > NUL
 ) else (
 set /a cput=500
-echo 500 > cput.txt
+echo 500 > cput.th
 )
 for /f "tokens=2 delims=:" %%a in ('findstr "compressfilesizemin:" "config.cfg"') do set /a compressfilesizemin=%%a
 set /a compressfilesizemin=%compressfilesizemin%*1000
@@ -172,7 +178,7 @@ set /a compressfilesizemin=%compressfilesizemin%*1000
 rem echo Finding oldest screenshot...
 for /f "delims=_" %%a in ('dir /b /a-d /o:-d "%batdir%screenshots\*_*.*"') do set "count=%%a"
 
-rem echo Launching cpuload checker...
+echo Launching cpuload checker...
 start "" /B cpuload.bat
 
 
@@ -205,18 +211,18 @@ for /f %%A in ('powershell -command "(Get-ChildItem -Path 'screenshots' -Recurse
 
 if exist compressed for /f %%A in ('powershell -command "(Get-ChildItem -Path 'compressed' -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB"') do set /a sizeMBB=%%A > NUL
 set /a sizeMB=%sizeMBA%+%sizeMBB%
+
+
 rem echo Size of folder: %sizeMB%
 
 if %sizeMB% GTR %compresssizetrigger% (
 if not exist compressed mkdir compressed
 echo Compressing screenshots over %compressfilesizemin%MB 
-echo When %sizeMB% ^> %compresssizetrigger%MB
+echo When %sizeMB%MB ^> %compresssizetrigger%MB
 if %compresscooloff% GTR 0 timeout %compresscooloff% >nul
 goto loopcompression
 )
-echo.
-echo Done Compressing!
-echo.
+
 :cannotcompress:
 :nevercompressed:
 if exist %batdir%compressed\* (
@@ -232,7 +238,13 @@ rem timeout 1 /nobreak > NUL
 rem attrib +h del.th
 rem timeout 1 /nobreak > NUL
 if exist compressed rmdir compressed
-
+del compress.th
+echo.
+echo Done Compressing!
+echo ########################################
+echo.
+echo.
+timeout 5 /nobreak > NUL
 exit
 
 
@@ -250,7 +262,7 @@ start "" /B "%batdir%convert" "%%F" -quality %compressquality% -strip -sharpen 0
 )
 )
 if %cpulim% LSS 100 (
-set /p compsd= < cput.txt
+set /p compsd= < cput.th
 ) else (
 set /a compsd=0
 )
@@ -301,7 +313,7 @@ rem set /a valcount=5
 
 if %count% GEQ 2001000000 (
 echo Cannot compress further!
-echo Lowering compressfilesizemin value by 20^%! 
+echo Lowering compressfilesizemin value by 20%%! 
 set /a cfsmm=%compressfilesizemin%/5
 echo %cfsmm%
 echo %compressfilesizemin%
@@ -311,7 +323,7 @@ set /a count2=2147483647
 set /a count3=0
 )
 if %screenysize% GTR %compressfilesizemin% (
-echo %count% %count2%/%compressmultithread% %count10% %compsd%
+echo %count% %count2%/%compressmultithread% 
 set /a count3=0
 )
 

@@ -7,23 +7,23 @@ set cpurm=0
 set equal=0
 set more=0
 set less=0
-if exist cput.txt (
-set /p cput=<cput.txt
+if exist cput.th (
+set /p cput=<cput.th
 timeout 2 /nobreak > NUL
 ) else (
 set /a cput=500
-echo 500 > cput.txt
+echo 500 > cput.th
 timeout 2 /nobreak > NUL
 )
 :loop:
 rem timeout 1 /nobreak > NUL
 for /f "tokens=2 delims=:" %%a in ('findstr "timer:" "config.cfg"') do set /a timer=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "compsd:" "config.cfg"') do set /a cpulim=%%a
-for /f "tokens=2 delims=:" %%a in ('findstr "deltxt:" "del.th"') do set /a deltxt=%%a
+
 set cpul=nothing
 for /f "tokens=2 delims== " %%C in ('wmic cpu get loadpercentage /value') do set /a cpul=%%C
 set /a trimcaphalf=%timer%*500
-if %deltxt% NEQ 4 exit
+if not exist compress.th exit
 if %cpul% == nothing goto loop
 
 
@@ -57,7 +57,7 @@ set /a cput=0
 )
 
 
-echo Pause/Sway/Legato/Allegro
-echo %cput%/%cpurm%/%more%/%less%
-echo %cput% > cput.txt
+echo CPU %% / Pause / Sway / Legato / Allegro
+echo %cpul%    /   %cput%   /   %cpurm%   /   %more%   /   %less%
+echo %cput% > cput.th
 goto loop
