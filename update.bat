@@ -288,7 +288,7 @@ echo sizecommandfreq:%sizecommandfreq%>>config.cfg
 echo.>>config.cfg
 echo If 1, then screenshots will be randomly chosen during deletion. >>config.cfg
 echo If 0, screenshots will be deleted starting from the lowest ID, and progress incremetally. >>config.cfg
-echo ran:%compressquality%>>config.cfg
+echo ran:%ran%>>config.cfg
 echo.>>config.cfg
 timeout 2 /nobreak > NUL
 start backgroundscreenshot.bat
