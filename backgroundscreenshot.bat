@@ -47,18 +47,20 @@ exit
 ) else (
 attrib +h delete.bat
 )
-if not exist deleteday.bat (
+if not exist cpuload.bat (
 start update.bat
 exit
 ) else (
-attrib +h deleteday.bat
+attrib +h cpuload.bat
 )
-rem if not exist compress.bat (
-rem start update.bat
-rem exit
-rem ) else (
-rem attrib +h compress.bat
-rem )
+if not exist settimestamps.ps1 (
+start update.bat
+exit
+) else (
+attrib +h settimestamps.ps1
+)
+
+
 
 
 

@@ -1,7 +1,7 @@
 @echo off
 rem title %~n0
-echo 'ERROR' or 'MISSING OPERATOR' text is normal.
-echo ########################################
+rem echo 'ERROR' or 'MISSING OPERATOR' text is normal.
+rem echo ########################################
 echo.
 setlocal EnableDelayedExpansion
 set batdir=%~dp0
@@ -15,15 +15,18 @@ for /f "tokens=2 delims=:" %%a in ('findstr "maxagedfiles:" "config.cfg"') do se
 for /f "tokens=2 delims=:" %%a in ('findstr "ran:" "config.cfg"') do set ran=%%a
 
 echo Daydeleting screenshots older than %maxagedfiles% days...
-timeout 5 /nobreak > NUL
+
+timeout 1 /nobreak > NUL
 
 forfiles /p "screenshots" /s /m *.* /d -%maxagedfiles% /c "cmd /c echo Deleting @file! && del @path"
 rem cls
 echo.
-echo Done Daydeleting!
+echo Done Daydeleting
 echo ########################################
 echo.
 echo.
+rem cls
+
 set /a delamt=%1
 set /a delqty=%2
 
@@ -42,75 +45,74 @@ rem echo Finding oldest screenshot...
 for /f "delims=_" %%a in ('dir /b /a-d /o:-d "%batdir%screenshots\*_*.*"') do set "count=%%a"
 rem echo Finding newest screenshot...
 timeout 2 /nobreak > NUL
-
-
-
-:deleteagain:
-rem if %ran% == 0 goto loopstandard
 echo Deleting %delamt% screenshots if stored screenshots are ^> %delqty%...
 echo.
-timeout 5 /nobreak > NUL
 if %files% LSS %delqty% goto endl
-goto loopstandard
+
+
+
+
+if %ran% == 0 goto loopstandard
+echo Deleting randomly...
+
+timeout 1 /nobreak > NUL
+if %files% LSS %delqty% goto endl
+set countold=%count%
+for /f "delims=_" %%a in ('dir /b /a-d /o:d "%batdir%screenshots\*_*.*"') do set "countnew=%%a"
 echo OLD: %countold%
 echo NEW: %countnew%
-for /f "delims=_" %%a in ('dir /b /a-d /o:d "%batdir%screenshots\*_*.*"') do set "countnew=%%a"
-set countold=%count%
+set /a balance=90
+set /a twist=90
+set /a z=0
+set /a conbalance=(%files%/2500)
+if %conbalance% LSS 1 set /a conbalance=1
 :loopdelete:
 set /a z+=1
 set /a f=0
 set /a e=0
 set /a targetscreenshot=0
-set /a e=%random% %% 3 + %balance%
+set /a e=%random% %% %conbalance% + %balance%
+if %e% LSS 2 set /a e=2
 :loopran:
 set /a f+=1
-set /a targetscreenshot+=%random% %% %files%
+set /a targetscreenshot+=%random%
 if %f% LSS %e% goto loopran
-if %targetscreenshot% LSS 0 (
-set /a f=0
-goto loopran
-)
-nircmd.exe wait 100
-echo %targetscreenshot% %z% %balance% %twist%
-if %balance% GEQ 5 set /a twist+=1
-if %balance% LSS 4 set /a twist-=1
-set /a targetscreenshot=%targetscreenshot%*%twist%
-
+if %balance% GTR 20 set /a twist+=1
+if %balance% LSS 5 set /a twist-=2
+if %twist% LSS 1 set /a twist=1
+if %balance% LSS 0 set /a balance=1
+set /a targetscreenshot=(%targetscreenshot%*%twist%)+((%RANDOM% %% 2)+1)
 if %targetscreenshot% GTR %countnew% (
 set /a z-=1
-if %balance% GTR 1 set /a balance-=1
-rem echo HIGH %balance% %targetscreenshot%
-goto loopran
+set /a balance-=1
+rem echo HIGH %balance%
+goto loopdelete
 )
-
 if %targetscreenshot% LSS %countold% (
 set /a z-=1
 set /a balance+=1
-rem echo LOW %balance% %targetscreenshot%
-goto loopran
+rem echo LOW %balance%
+goto loopdelete
 )
 
 if not exist "%batdir%\screenshots\%targetscreenshot%*" (
 rem echo Does not exist
-goto loopran
-)
-
-rem del "%batdir%\screenshots\%targetscreenshot%*"
-echo deleted! %targetscreenshot% %z% %balance% %twist%
-if %z% LSS %delamt% goto loopdelete
+set /a z-=1
 goto loopdelete
-goto end
-
-
+)
+echo z:%z% bal:%balance% tw:%twist% e:%e% %targetscreenshot% 
+del "%batdir%\screenshots\%targetscreenshot%*"
+if %z% GEQ %delamt% (
+echo deleted %delamt%
+timeout 5 /nobreak 
+goto endl
+)
+goto loopdelete
 
 :loopstandard:
-rem for /f "delims=" %%i in ('dir /a-d /w /b "%cd%\screenshots" ^| find /v /c ""') do set files=%%i
-
-if %files% LSS %delqty% goto endl
-
 if exist "%batdir%screenshots\%count%*" (
 del "%batdir%screenshots\%count%*"
-echo Deleting %count%! %delqty% / %count2%
+echo Deleting %count% %count2% / %delamt%
 set /a count2+=1
 set /a count3=0
 ) else (
@@ -138,27 +140,28 @@ set /a count=0
 set /a count3=0
 )
 
-if %count2% LSS %delamt% goto loopstandard
+if %count2% LEQ %delamt% goto loopstandard
 :end:
 
-for /f "delims=" %%i in ('dir /a-d /w /b "%cd%\screenshots" ^| find /v /c ""') do set files=%%i
+rem for /f "delims=" %%i in ('dir /a-d /w /b "%cd%\screenshots" ^| find /v /c ""') do set files=%%i
 
-if %files% GTR %delqty% (
-echo Deleting again!
-for /f "delims=_" %%a in ('dir /b /a-d /o:-d "%batdir%screenshots\*_*.*"') do set "count=%%a"
-set /a count2=0
-set /a count3=0
-timeout 1 /nobreak > NUL
-goto loopstandard
-)
+rem if %files% GTR %delqty% (
+rem echo Deleting again
+rem for /f "delims=_" %%a in ('dir /b /a-d /o:-d "%batdir%screenshots\*_*.*"') do set "count=%%a"
+rem set /a count2=0
+rem set /a count3=0
+rem timeout 1 /nobreak > NUL
+rem goto loopstandard
+rem )
+
 :endl:
-echo Done Deleting!
+rem cls
+echo Done Deleting
 echo ########################################
 echo.
 echo.
-rem COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS 
-if not exist compress.th echo. > compress.th
 
+rem COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS 
 
 set /a count=2000010000
 set /a count2=0
@@ -177,7 +180,7 @@ set /a compressfilesizemin=%compressfilesizemin%*1000
 
 rem echo Finding oldest screenshot...
 for /f "delims=_" %%a in ('dir /b /a-d /o:-d "%batdir%screenshots\*_*.*"') do set "count=%%a"
-
+rem cls
 echo Launching cpuload checker...
 start "" /B cpuload.bat
 
@@ -189,8 +192,20 @@ timeout 2 /nobreak > NUL
 move "%batdir%compressed\*.*" "%batdir%screenshots\" > NUL
 timeout 2 /nobreak > NUL
 )
-echo Compressing screenshots ^> %compressfilesizemin%MB when screenshots folder ^> %compresssizetrigger%MB
+set /a count2=0
+set /a sizeMBA=0
+set /a sizeMBB=0
+set /a sizeMB=0
+
+if not exist compress.th echo. > compress.th
+for /f %%A in ('powershell -command "(Get-ChildItem -Path 'screenshots' -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB"') do set /a sizeMBA=%%A > NUL
+
+if exist compressed for /f %%A in ('powershell -command "(Get-ChildItem -Path 'compressed' -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB"') do set /a sizeMBB=%%A > NUL
+set /a sizeMB=%sizeMBA%+%sizeMBB%
+rem cls
+echo Compressing screenshots ^> %compressfilesizemin%B when screenshots folder %sizeMB% ^> %compresssizetrigger%MB
 echo.
+
 :loopc:
 for /f "tokens=2 delims=:" %%a in ('findstr "compresscooloff:" "config.cfg"') do set /a compresscooloff=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "compressmultithread:" "config.cfg"') do set /a compressmultithread=%%a
@@ -212,13 +227,15 @@ for /f %%A in ('powershell -command "(Get-ChildItem -Path 'screenshots' -Recurse
 if exist compressed for /f %%A in ('powershell -command "(Get-ChildItem -Path 'compressed' -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB"') do set /a sizeMBB=%%A > NUL
 set /a sizeMB=%sizeMBA%+%sizeMBB%
 
+rem cls
+
 
 rem echo Size of folder: %sizeMB%
 
 if %sizeMB% GTR %compresssizetrigger% (
 if not exist compressed mkdir compressed
-echo Compressing screenshots over %compressfilesizemin%MB 
-echo When %sizeMB%MB ^> %compresssizetrigger%MB
+echo Compressing screenshots over %compressfilesizemin%MB
+echo When %sizeMB%B ^> %compresssizetrigger%MB
 if %compresscooloff% GTR 0 timeout %compresscooloff% >nul
 goto loopcompression
 )
@@ -239,11 +256,18 @@ rem attrib +h del.th
 rem timeout 1 /nobreak > NUL
 if exist compressed rmdir compressed
 del compress.th
+rem cls
 echo.
-echo Done Compressing!
+echo Done Compressing
 echo ########################################
 echo.
 echo.
+
+timeout 5 /nobreak > NUL
+echo.
+echo Completed screenshot management Closing
+echo ########################################
+
 timeout 5 /nobreak > NUL
 exit
 
@@ -312,8 +336,8 @@ rem set /a valcount=5
 )
 
 if %count% GEQ 2001000000 (
-echo Cannot compress further!
-echo Lowering compressfilesizemin value by 20%%! 
+echo Cannot compress further
+echo Lowering compressfilesizemin value by 20%% 
 set /a cfsmm=%compressfilesizemin%/5
 echo %cfsmm%
 echo %compressfilesizemin%
