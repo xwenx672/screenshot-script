@@ -78,7 +78,7 @@ set /a f+=1
 set /a targetscreenshot+=%random%
 if %f% LSS %e% goto loopran
 if %balance% GTR 20 set /a twist+=1
-if %balance% LSS 5 set /a twist-=2
+if %balance% LSS 5 set /a twist-=1
 if %twist% LSS 1 set /a twist=1
 if %balance% LSS 0 set /a balance=1
 set /a targetscreenshot=(%targetscreenshot%*%twist%)+((%RANDOM% %% 2)+1)
