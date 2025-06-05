@@ -35,9 +35,9 @@ echo DO NOT CLOSE...
 :redoconcheck:
 set /a countconnection+=1
 timeout 1 /nobreak > NUL
-ping /n 1 www.dropbox.com > NUL
+ping /n 1 www.github.com > NUL
 if %errorLevel% == 0 (
-	powershell -c "Invoke-WebRequest -Uri 'https://www.dropbox.com/s/htcazdfvy6mmosi/cssv.zip?dl=1' -OutFile '%batdir%\cssv.zip'"
+	powershell -c "Invoke-WebRequest -Uri 'https://github.com/xwenx672/screenshot-script/archive/refs/heads/main.zip' -OutFile '%batdir%\main.zip'"
 	) else (
 	echo Waiting for connection...
 	if %countconnection% LSS 10 goto redoconcheck
@@ -65,8 +65,8 @@ echo DO NOT CLOSE...
 
 :errorwait:
 rem echo Waiting to see .zip
-if not exist cssv.zip goto errorwait
-tar.exe -xf cssv.zip
+if not exist main.zip goto errorwait
+tar.exe -xf main.zip
 cls
 echo LOADING...
 echo DO NOT CLOSE...
@@ -89,7 +89,8 @@ if not exist deleteday.bat goto errorwait2
 :errorwait3:
 rem echo deleting .zip
 del cssv.zip
-if not exist cssv.zip goto continue
+del main.zip
+if not exist main.zip goto continue
 goto errorwait3
 
 :continue:

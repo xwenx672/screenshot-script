@@ -182,35 +182,63 @@ if exist update0.th goto skipupdate
 echo Checking for updates...
 if exist version.txt del version.txt
 :redoconcheck:
-set /a countconnection+=1
-timeout 1 /nobreak > NUL
-ping /n 1 www.dropbox.com > NUL
-if %errorLevel% == 0 (
-	powershell -c "Invoke-WebRequest -Uri 'https://www.dropbox.com/s/o72g1c2aj616yhm/version.txt?dl=1' -OutFile '%batdir%\version.txt'"
-	) else (
-	echo Waiting for connection...
-	if %countconnection% LSS 5 goto redoconcheck
-	echo Cannot check for updates, skipping...
-	timeout 2 /nobreak > NUL
-	goto skipupdate
+rem set /a countconnection+=1
+rem timeout 1 /nobreak > NUL
+
+
+
+powershell -Command "try { Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/xwenx672/screenshot-script/refs/heads/currentversionvalue/version.txt' -UseBasicParsing -TimeoutSec 5 | Out-Null; exit 0 } catch { exit 1 }"
+if %errorlevel%==0 (
+set el=0
+) else (
+set el=1
 )
-:waitingforversion:
-if not exist version.txt (
-set /a countversion+=1
-timeout 1 /nobreak > NUL
-if %countversion% LEQ 2 goto waitingforversion
-echo Cannot update, no idea why.
-timeout 5
+
+powershell -Command "try { Invoke-WebRequest -Uri 'https://github.com/xwenx672/screenshot-script/archive/refs/heads/main.zip' -UseBasicParsing -TimeoutSec 5 | Out-Null; exit 0 } catch { exit 1 }"
+if %errorlevel%==0 (
+set el=0
+) else (
+set el=1
+)
+if %el% NEQ 0 (
+echo Cannot update.
+timeout 3 /nobreak > NUL
 goto skipupdate
 )
-for /f "tokens=* delims=" %%a in ('type version.txt') do set curversiontxt=%%a
-timeout 1 /nobreak > NUL
-del version.txt
+
+
+for /f "delims=" %%A in ('powershell -command "Invoke-RestMethod 'https://raw.githubusercontent.com/xwenx672/screenshot-script/refs/heads/currentversionvalue/version.txt'"') do (
+    set "curversiontxt=%%A"
+)
+timeout 2 /nobreak > NUL
+rem if %errorLevel% == 0 (
+rem 	powershell -c "Invoke-WebRequest -Uri 'https://www.dropbox.com/s/o72g1c2aj616yhm/version.txt?dl=1' -OutFile '%batdir%\version.txt'"
+rem 	) else (
+rem 	echo Waiting for connection...
+rem 	if %countconnection% LSS 5 goto redoconcheck
+rem 	echo Cannot check for updates, skipping...
+rem 	timeout 2 /nobreak > NUL
+rem 	goto skipupdate
+rem )
+rem :waitingforversion:
+rem if not exist version.txt (
+rem set /a countversion+=1
+rem timeout 1 /nobreak > NUL
+rem if %countversion% LEQ 2 goto waitingforversion
+rem echo Cannot update, no idea why.
+rem timeout 5
+rem goto skipupdate
+rem )
+rem for /f "tokens=* delims=" %%a in ('type version.txt') do set curversiontxt=%%a
+rem timeout 1 /nobreak > NUL
+rem del version.txt
 if %curversiontxt% == %version% goto skipupdate
 if exist update1.th for /f "delims=" %%i in ('cscript //nologo "%batdir%yoke.vbs"') do (set ans=%%i)
 timeout 1 /nobreak > NUL
 if %ans% == no goto skipupdate
-start update.bat
+del run*.th
+start "" /B update.bat
+timeout 5 /nobreak > NUL
 exit
 :skipupdate:
 

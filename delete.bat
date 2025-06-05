@@ -78,7 +78,7 @@ set /a f+=1
 set /a targetscreenshot+=%random%
 if %f% LSS %e% goto loopran
 if %balance% GTR 20 set /a twist+=1
-if %balance% LSS 5 set /a twist-=1
+if %balance% LSS 5 set /a twist-=2
 if %twist% LSS 1 set /a twist=1
 if %balance% LSS 0 set /a balance=1
 set /a targetscreenshot=(%targetscreenshot%*%twist%)+((%RANDOM% %% 2)+1)
@@ -181,9 +181,6 @@ set /a compressfilesizemin=%compressfilesizemin%*1000
 rem echo Finding oldest screenshot...
 for /f "delims=_" %%a in ('dir /b /a-d /o:-d "%batdir%screenshots\*_*.*"') do set "count=%%a"
 rem cls
-echo Launching cpuload checker...
-start "" /B cpuload.bat
-
 
 rem echo Checking for compressed folder...
 if exist %batdir%compressed\* (
@@ -197,14 +194,17 @@ set /a sizeMBA=0
 set /a sizeMBB=0
 set /a sizeMB=0
 
-if not exist compress.th echo. > compress.th
-for /f %%A in ('powershell -command "(Get-ChildItem -Path 'screenshots' -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB"') do set /a sizeMBA=%%A > NUL
 
-if exist compressed for /f %%A in ('powershell -command "(Get-ChildItem -Path 'compressed' -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB"') do set /a sizeMBB=%%A > NUL
+for /f %%A in ('powershell -command "[math]::Floor((Get-ChildItem -Path 'screenshots' -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB)"') do set /a sizeMBA=%%A
+if exist compressed for /f %%A in ('powershell -command "[math]::Floor((Get-ChildItem -Path 'compressed' -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB)"') do set /a sizeMBB=%%A > NUL
 set /a sizeMB=%sizeMBA%+%sizeMBB%
 rem cls
 echo Compressing screenshots ^> %compressfilesizemin%B when screenshots folder %sizeMB% ^> %compresssizetrigger%MB
 echo.
+
+echo Launching cpuload checker...
+if not exist compress.th echo. > compress.th
+start "" /B cpuload.bat
 
 :loopc:
 for /f "tokens=2 delims=:" %%a in ('findstr "compresscooloff:" "config.cfg"') do set /a compresscooloff=%%a
@@ -213,6 +213,12 @@ for /f "tokens=2 delims=:" %%a in ('findstr "compresssizetrigger:" "config.cfg"'
 for /f "tokens=2 delims=:" %%a in ('findstr "compressquality:" "config.cfg"') do set /a compressquality=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "compsd:" "config.cfg"') do set /a cpulim=%%a
 
+if exist %batdir%compressed\* (
+powershell -ExecutionPolicy Bypass -File "%batdir%settimestamps.ps1" -Folder "%batdir%compressed"
+timeout 2 /nobreak > NUL
+move "%batdir%compressed\*.*" "%batdir%screenshots\" > NUL
+timeout 2 /nobreak > NUL
+)
 
 rem echo Compress trigger: %compressfilesizemin%
 
@@ -222,9 +228,8 @@ set /a sizeMBA=0
 set /a sizeMBB=0
 set /a sizeMB=0
 
-for /f %%A in ('powershell -command "(Get-ChildItem -Path 'screenshots' -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB"') do set /a sizeMBA=%%A > NUL
-
-if exist compressed for /f %%A in ('powershell -command "(Get-ChildItem -Path 'compressed' -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB"') do set /a sizeMBB=%%A > NUL
+for /f %%A in ('powershell -command "[math]::Floor((Get-ChildItem -Path 'screenshots' -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB)"') do set /a sizeMBA=%%A
+if exist compressed for /f %%A in ('powershell -command "[math]::Floor((Get-ChildItem -Path 'compressed' -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB)"') do set /a sizeMBB=%%A > NUL
 set /a sizeMB=%sizeMBA%+%sizeMBB%
 
 rem cls
@@ -244,9 +249,9 @@ goto loopcompression
 :nevercompressed:
 if exist %batdir%compressed\* (
 powershell -ExecutionPolicy Bypass -File "%batdir%settimestamps.ps1" -Folder "%batdir%compressed"
-timeout 3 /nobreak > NUL
+timeout 2 /nobreak > NUL
 move "%batdir%compressed\*.*" "%batdir%screenshots\" > NUL
-timeout 3 /nobreak > NUL
+timeout 2 /nobreak > NUL
 )
 rem attrib -h del.th
 rem timeout 1 /nobreak > NUL

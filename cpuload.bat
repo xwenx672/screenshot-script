@@ -57,7 +57,6 @@ set /a cput=0
 )
 
 
-echo CPU %% / Pause / Sway / Legato / Allegro
-echo %cpul%   /  %cput%  /  %cpurm%  /  %more%  /  %less%
+echo CPU%%:%cpul% / Pause:%cput% / Sway:%cpurm% / Legato:%more% / Allegro:%less%
 echo %cput% > cput.th
 goto loop
