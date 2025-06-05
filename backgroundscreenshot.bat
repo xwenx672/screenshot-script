@@ -12,7 +12,7 @@ cls
 timeout 1 /nobreak > NUL
 nircmd.exe win hide ititle %~n0
 
-set "version=v1.22.1"
+set "version=v1.22.0"
 echo Current version: %version%
 echo.
 :essentialfiles:
@@ -188,23 +188,18 @@ rem timeout 1 /nobreak > NUL
 rem https://raw.githubusercontent.com/xwenx672/screenshot-script/refs/heads/dev-v1.23.0/version.txt
 
 powershell -Command "try { Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/xwenx672/screenshot-script/refs/heads/dev-v1.23.0/version.txt' -UseBasicParsing -TimeoutSec 5 | Out-Null; exit 0 } catch { exit 1 }"
-if %errorlevel%==0 (
-set el=0
-) else (
-set el=1
-)
-
-powershell -Command "try { Invoke-WebRequest -Uri 'https://github.com/xwenx672/screenshot-script/archive/refs/heads/dev-v1.23.0.zip' -UseBasicParsing -TimeoutSec 5 | Out-Null; exit 0 } catch { exit 1 }"
-if %errorlevel%==0 (
-set el=0
-) else (
-set el=1
-)
-if %el% NEQ 0 (
+if %errorlevel% NEQ 0 (
 echo Cannot update.
 timeout 3 /nobreak > NUL
 goto skipupdate
 )
+rem powershell -Command "try { Invoke-WebRequest -Uri 'https://github.com/xwenx672/screenshot-script/archive/refs/heads/dev-v1.23.0.zip' -UseBasicParsing -TimeoutSec 5 | Out-Null; exit 0 } catch { exit 1 }"
+rem if %errorlevel%==0 (
+rem set el=0
+rem ) else (
+rem set el=1
+rem )
+
 
 
 for /f "delims=" %%A in ('powershell -command "Invoke-RestMethod 'https://raw.githubusercontent.com/xwenx672/screenshot-script/refs/heads/dev-v1.23.0/version.txt'"') do (
