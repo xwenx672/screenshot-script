@@ -1,23 +1,5 @@
 @echo off
-echo SOMETHING WENT WRONG, SCRIPT IS CLOSED.
-pause
-exit
-exit
-exit
-exit
-exit
-exit
-exit
-exit
-exit
-exit
-exit
-exit
-exit
-exit
-exit
-
-
+set "zn=dev-v1.23.0"
 title %~n0
 set batdir=%~dp0
 pushd "%batdir%"
@@ -28,7 +10,7 @@ goto linkbreak
 REM tasklist /v | findstr "backgroundscreenshot"
 REM IF %ERRORLEVEL% EQU 0 taskkill /f /fi "windowtitle eq backgroundscreenshot"
 if exist run*.th del run*.th
-nircmd.exe win hide ititle %~n0
+rem nircmd.exe win hide ititle %~n0
 echo LOADING...
 echo DO NOT CLOSE...
 
@@ -37,9 +19,9 @@ set /a countconnection+=1
 timeout 1 /nobreak > NUL
 ping /n 1 www.github.com > NUL
 
-powershell -Command "try { Invoke-WebRequest -Uri 'https://github.com/xwenx672/screenshot-script/archive/refs/heads/dev-v1.23.0.zip' -UseBasicParsing -TimeoutSec 5 | Out-Null; exit 0 } catch { exit 1 }"
+powershell -Command "try { Invoke-WebRequest -Uri 'https://github.com/xwenx672/screenshot-script/archive/refs/heads/%zn%.zip' -UseBasicParsing -TimeoutSec 5 | Out-Null; exit 0 } catch { exit 1 }"
 if %errorLevel% == 0 (
-	powershell -c "Invoke-WebRequest -Uri 'https://github.com/xwenx672/screenshot-script/archive/refs/heads/dev-v1.23.0.zip' -OutFile '%batdir%\main.zip'"
+	powershell -c "Invoke-WebRequest -Uri 'https://github.com/xwenx672/screenshot-script/archive/refs/heads/%zn%.zip' -OutFile '%batdir%\%zn%.zip'"
 	) else (
 	echo Waiting for connection...
 	if %countconnection% LSS 10 goto redoconcheck
@@ -67,8 +49,8 @@ echo DO NOT CLOSE...
 
 :errorwait:
 rem echo Waiting to see .zip
-if not exist main.zip goto errorwait
-tar.exe -xf main.zip
+if not exist %zn%.zip goto errorwait
+tar.exe -xf %zn%.zip
 cls
 echo LOADING...
 echo DO NOT CLOSE...
@@ -77,10 +59,11 @@ timeout 1 /nobreak > NUL
 timeout 1 /nobreak > NUL
 timeout 1 /nobreak > NUL
 timeout 1 /nobreak > NUL
-
+move "%zn%/*" "%batdir%"
 
 :errorwait2:
 rem echo Unpacking
+move 
 if not exist delete.bat goto errorwait2
 if not exist backgroundscreenshot.bat goto errorwait2
 if not exist nircmd.exe goto errorwait2
