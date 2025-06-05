@@ -63,24 +63,10 @@ timeout 1 /nobreak > NUL
 timeout 1 /nobreak > NUL
 timeout 1 /nobreak > NUL
 timeout 1 /nobreak > NUL
-pause
-rmdir /s /q "screenshot-script-%zn%"
-pause
-:errorwait2:
-rem echo Unpacking
-if not exist delete.bat goto errorwait2
-if not exist backgroundscreenshot.bat goto errorwait2
-if not exist nircmd.exe goto errorwait2
-if not exist update.bat goto errorwait2
-if not exist yoke.vbs goto errorwait2
-rem if not exist deleteday.bat goto errorwait2
 
-:errorwait3:
-rem echo deleting .zip
-del cssv.zip
-del %zn%.zip
-rm screenshot-script-%zn%
-if exist %zn%.zip goto errorwait3
+rmdir /s /q "screenshot-script-%zn%"
+del /f cssv.zip
+del /f %zn%.zip
 
 :continue:
 rem echo closing!
