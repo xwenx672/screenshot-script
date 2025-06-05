@@ -36,8 +36,10 @@ echo DO NOT CLOSE...
 set /a countconnection+=1
 timeout 1 /nobreak > NUL
 ping /n 1 www.github.com > NUL
+
+powershell -Command "try { Invoke-WebRequest -Uri 'https://github.com/xwenx672/screenshot-script/archive/refs/heads/dev-v1.23.0.zip' -UseBasicParsing -TimeoutSec 5 | Out-Null; exit 0 } catch { exit 1 }"
 if %errorLevel% == 0 (
-	powershell -c "Invoke-WebRequest -Uri 'https://github.com/xwenx672/screenshot-script/archive/refs/heads/main.zip' -OutFile '%batdir%\main.zip'"
+	powershell -c "Invoke-WebRequest -Uri 'https://github.com/xwenx672/screenshot-script/archive/refs/heads/dev-v1.23.0.zip' -OutFile '%batdir%\main.zip'"
 	) else (
 	echo Waiting for connection...
 	if %countconnection% LSS 10 goto redoconcheck

@@ -185,16 +185,16 @@ if exist version.txt del version.txt
 rem set /a countconnection+=1
 rem timeout 1 /nobreak > NUL
 
+rem https://raw.githubusercontent.com/xwenx672/screenshot-script/refs/heads/dev-v1.23.0/version.txt
 
-
-powershell -Command "try { Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/xwenx672/screenshot-script/refs/heads/currentversionvalue/version.txt' -UseBasicParsing -TimeoutSec 5 | Out-Null; exit 0 } catch { exit 1 }"
+powershell -Command "try { Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/xwenx672/screenshot-script/refs/heads/dev-v1.23.0/version.txt' -UseBasicParsing -TimeoutSec 5 | Out-Null; exit 0 } catch { exit 1 }"
 if %errorlevel%==0 (
 set el=0
 ) else (
 set el=1
 )
 
-powershell -Command "try { Invoke-WebRequest -Uri 'https://github.com/xwenx672/screenshot-script/archive/refs/heads/main.zip' -UseBasicParsing -TimeoutSec 5 | Out-Null; exit 0 } catch { exit 1 }"
+powershell -Command "try { Invoke-WebRequest -Uri 'https://github.com/xwenx672/screenshot-script/archive/refs/heads/dev-v1.23.0.zip' -UseBasicParsing -TimeoutSec 5 | Out-Null; exit 0 } catch { exit 1 }"
 if %errorlevel%==0 (
 set el=0
 ) else (
@@ -207,7 +207,7 @@ goto skipupdate
 )
 
 
-for /f "delims=" %%A in ('powershell -command "Invoke-RestMethod 'https://raw.githubusercontent.com/xwenx672/screenshot-script/refs/heads/currentversionvalue/version.txt'"') do (
+for /f "delims=" %%A in ('powershell -command "Invoke-RestMethod 'https://raw.githubusercontent.com/xwenx672/screenshot-script/refs/heads/dev-v1.23.0/version.txt'"') do (
     set "curversiontxt=%%A"
 )
 timeout 2 /nobreak > NUL
