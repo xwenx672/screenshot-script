@@ -12,7 +12,7 @@ cls
 timeout 1 /nobreak > NUL
 nircmd.exe win hide ititle %~n0
 
-set "version=v1.22.0"
+set "version=v1.23.0"
 echo Current version: %version%
 echo.
 :essentialfiles:
