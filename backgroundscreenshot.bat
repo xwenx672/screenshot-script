@@ -23,6 +23,18 @@ pause
 exit
 )
 
+if not exist convert.exe (
+start update.bat
+exit
+) else (
+attrib +h convert.exe
+)
+if not exist mogrify.exe (
+start update.bat
+exit
+) else (
+attrib +h mogrify.exe
+)
 if not exist yoke.vbs (
 start update.bat
 exit

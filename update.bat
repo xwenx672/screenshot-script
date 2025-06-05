@@ -270,10 +270,15 @@ timeout 2 /nobreak > NUL
 start backgroundscreenshot.bat
 
 :linkbreak:
+if exist loc.th (
 set /p oldloc=<loc.th
+) else (
+set oldloc=nothingthere
+)
+
 timeout 1 /nobreak > NUL
 schtasks /query /tn bgscrnshtr > NUL 2>&1
-if %errorlevel% == 1 set oldloc=0
+if %errorlevel% == 1 set oldloc=nothingthere
 
 if "%oldloc%" == "%batdir%" exit
 
@@ -286,6 +291,8 @@ if %errorlevel% == 0 (
 	exit
 )
 if exist "%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\screenshotter.lnk" del "%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\screenshotter.lnk"
+schtasks /delete /tn bgscrnshtr /f
+timeout 3 /nobreak > NUL
 schtasks /create /tn bgscrnshtr /tr "%batdir%backgroundscreenshot.bat" /sc ONLOGON /f
 attrib -h loc.th
 timeout 1 /nobreak > NUL
