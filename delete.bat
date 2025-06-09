@@ -2,6 +2,7 @@
 rem title %~n0
 rem echo 'ERROR' or 'MISSING OPERATOR' text is normal.
 rem echo ########################################
+set /a countexit=0
 echo.
 setlocal EnableDelayedExpansion
 set batdir=%~dp0
@@ -38,16 +39,17 @@ set /a targetscreenshot=0
 set /a balance=1
 set /a z=0
 set /a twist=1
-
-rem for /f "tokens=2 delims=:" %%a in ('findstr "deldurbef:" "config.cfg"') do set /a deldurbef=%%a
+echo Deleting %delamt% screenshots if stored screenshots are ^> %delqty%...
+echo.
 for /f "delims=" %%i in ('dir /a-d /w /b "%cd%\screenshots" ^| find /v /c ""') do set files=%%i
 rem echo Finding oldest screenshot...
 for /f "delims=_" %%a in ('dir /b /a-d /o:-d "%batdir%screenshots\*_*.*"') do set "count=%%a"
-rem echo Finding newest screenshot...
+set /a countold=%count%
+for /f "delims=_" %%a in ('dir /b /a-d /o:d "%batdir%screenshots\*_*.*"') do set "countnew=%%a"
+
 timeout 2 /nobreak > NUL
-echo Deleting %delamt% screenshots if stored screenshots are ^> %delqty%...
-echo.
-if %files% LSS %delqty% goto endl
+
+if %files% LSS %delqty% goto end
 
 
 
@@ -55,59 +57,10 @@ if %files% LSS %delqty% goto endl
 if %ran% == 0 goto loopstandard
 echo Deleting randomly...
 
-timeout 1 /nobreak > NUL
-if %files% LSS %delqty% goto endl
-set countold=%count%
-for /f "delims=_" %%a in ('dir /b /a-d /o:d "%batdir%screenshots\*_*.*"') do set "countnew=%%a"
-echo OLD: %countold%
-echo NEW: %countnew%
-set /a balance=90
-set /a twist=90
-set /a z=0
-set /a conbalance=(%files%/2500)
-if %conbalance% LSS 1 set /a conbalance=1
-:loopdelete:
-set /a z+=1
-set /a f=0
-set /a e=0
-set /a targetscreenshot=0
-set /a e=%random% %% %conbalance% + %balance%
-if %e% LSS 2 set /a e=2
-:loopran:
-set /a f+=1
-set /a targetscreenshot+=%random%
-if %f% LSS %e% goto loopran
-if %balance% GTR 20 set /a twist+=1
-if %balance% LSS 5 set /a twist-=2
-if %twist% LSS 1 set /a twist=1
-if %balance% LSS 0 set /a balance=1
-set /a targetscreenshot=(%targetscreenshot%*%twist%)+((%RANDOM% %% 2)+1)
-if %targetscreenshot% GTR %countnew% (
-set /a z-=1
-set /a balance-=1
-rem echo HIGH %balance%
-goto loopdelete
-)
-if %targetscreenshot% LSS %countold% (
-set /a z-=1
-set /a balance+=1
-rem echo LOW %balance%
-goto loopdelete
-)
 
-if not exist "%batdir%\screenshots\%targetscreenshot%*" (
-rem echo Does not exist
-set /a z-=1
-goto loopdelete
-)
-echo z:%z% bal:%balance% tw:%twist% e:%e% %targetscreenshot% 
-del "%batdir%\screenshots\%targetscreenshot%*"
-if %z% GEQ %delamt% (
-echo deleted %delamt%
-timeout 5 /nobreak 
-goto endl
-)
-goto loopdelete
+powershell -ExecutionPolicy Bypass -File "%batdir%ps.ps1" -targetFolder "%batdir%screenshots" -startValue "%countold%" -endValue "%countnew%" -delValue "%delamt%"
+goto end
+
 
 :loopstandard:
 if exist "%batdir%screenshots\%count%*" (
@@ -143,18 +96,6 @@ set /a count3=0
 if %count2% LEQ %delamt% goto loopstandard
 :end:
 
-rem for /f "delims=" %%i in ('dir /a-d /w /b "%cd%\screenshots" ^| find /v /c ""') do set files=%%i
-
-rem if %files% GTR %delqty% (
-rem echo Deleting again
-rem for /f "delims=_" %%a in ('dir /b /a-d /o:-d "%batdir%screenshots\*_*.*"') do set "count=%%a"
-rem set /a count2=0
-rem set /a count3=0
-rem timeout 1 /nobreak > NUL
-rem goto loopstandard
-rem )
-
-:endl:
 rem cls
 echo Done Deleting
 echo ########################################
@@ -162,7 +103,7 @@ echo.
 echo.
 
 rem COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS 
-
+echo Starting compression if required...
 set /a count=2000010000
 set /a count2=0
 set /a valcount=0
@@ -184,7 +125,7 @@ rem cls
 
 rem echo Checking for compressed folder...
 if exist %batdir%compressed\* (
-powershell -ExecutionPolicy Bypass -File "%batdir%settimestamps.ps1" -Folder "%batdir%compressed"
+powershell -ExecutionPolicy Bypass -File "%batdir%ps.ps1" -targetFolder "%batdir%compressed"
 timeout 2 /nobreak > NUL
 move "%batdir%compressed\*.*" "%batdir%screenshots\" > NUL
 timeout 2 /nobreak > NUL
@@ -214,7 +155,7 @@ for /f "tokens=2 delims=:" %%a in ('findstr "compressquality:" "config.cfg"') do
 for /f "tokens=2 delims=:" %%a in ('findstr "compsd:" "config.cfg"') do set /a cpulim=%%a
 
 if exist %batdir%compressed\* (
-powershell -ExecutionPolicy Bypass -File "%batdir%settimestamps.ps1" -Folder "%batdir%compressed"
+powershell -ExecutionPolicy Bypass -File "%batdir%ps.ps1" -targetFolder "%batdir%compressed"
 timeout 2 /nobreak > NUL
 move "%batdir%compressed\*.*" "%batdir%screenshots\" > NUL
 timeout 2 /nobreak > NUL
@@ -239,8 +180,8 @@ rem echo Size of folder: %sizeMB%
 
 if %sizeMB% GTR %compresssizetrigger% (
 if not exist compressed mkdir compressed
-echo Compressing screenshots over %compressfilesizemin%MB
-echo When %sizeMB%B ^> %compresssizetrigger%MB
+echo Compressing screenshots over %compressfilesizemin%B
+echo When screenshots folder ^(%sizeMB%MB^) ^> %compresssizetrigger%MB
 if %compresscooloff% GTR 0 timeout %compresscooloff% >nul
 goto loopcompression
 )
@@ -248,7 +189,7 @@ goto loopcompression
 :cannotcompress:
 :nevercompressed:
 if exist %batdir%compressed\* (
-powershell -ExecutionPolicy Bypass -File "%batdir%settimestamps.ps1" -Folder "%batdir%compressed"
+powershell -ExecutionPolicy Bypass -File "%batdir%ps.ps1" -targetFolder "%batdir%compressed"
 timeout 2 /nobreak > NUL
 move "%batdir%compressed\*.*" "%batdir%screenshots\" > NUL
 timeout 2 /nobreak > NUL
@@ -260,7 +201,7 @@ rem timeout 1 /nobreak > NUL
 rem attrib +h del.th
 rem timeout 1 /nobreak > NUL
 if exist compressed rmdir compressed
-del compress.th
+if exist compress.th del compress.th
 rem cls
 echo.
 echo Done Compressing
@@ -283,7 +224,11 @@ set /a count=1
 del 1
 )
 
-if not exist "%batdir%screenshots\%count%*" goto notexist
+if not exist "%batdir%screenshots\%count%*" (
+set /a screenysize=0
+goto notexist
+)
+set countexit=0
 for %%F in ("%batdir%screenshots\%count%*") do (
 set /a "screenysize=%%~zF"
 if %%~zF GTR %compressfilesizemin% (
@@ -314,9 +259,9 @@ rem if %valcount% == 4 set /a count-=100000
 rem if %valcount% == 5 set /a count-=10000000
 rem set /a valcount=0
 set /a count3=0
-goto skipnoexist
+rem goto skipnoexist
 :notexist:
-echo %count% Does not exist
+rem echo %count% Does not exist
 :skipnoexist:
 if %count3% LEQ 10000 (
 set /a count+=1

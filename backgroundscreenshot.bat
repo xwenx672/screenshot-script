@@ -65,11 +65,11 @@ exit
 ) else (
 attrib +h cpuload.bat
 )
-if not exist settimestamps.ps1 (
+if not exist ps.ps1 (
 start update.bat
 exit
 ) else (
-attrib +h settimestamps.ps1
+attrib +h ps.ps1
 )
 
 
@@ -603,7 +603,7 @@ del 9.txt
 if %deltxt% LEQ 10 (
 set /a deltxt+=1
 ) else if %deltxt% == 11 (
-start delete.bat %delamt% %delqty%
+start "" /B delete.bat %delamt% %delqty%
 set /a deltxt=100
 )
 goto lrmskip

@@ -33,17 +33,17 @@ rem echo %biasval%
 
 
 
-rem powershell -ExecutionPolicy Bypass -File "%batdir%settimestamps.ps1" -Folder "%batdir%old_archive"
+
 rem timeout 2 /nobreak > NUL
 rem for /f "delims=_" %%a in ('dir /b /a-d /o:d "%batdir%old_archive\*"') do set "countold=%%a"
 rem for /f "delims=_" %%a in ('dir /b /a-d /o:-d "%batdir%old_archive\*"') do set "countnew=%%a"
 
 set d=0
-rem set /a low=350000
+rem set /a low=353000
 set /a low=0
-rem set /a high=1860000
+rem set /a high=1830000
 set /a high=2147483647
-set count3=100000
+set count3=10000000
 nircmd.exe win setsize title %~n0 0 0 650 450
 :countingold:
 echo %low% %count3%
@@ -59,10 +59,11 @@ set /a count3=-500
 goto countingold
 )
 
-set /a count3=100000
+set /a count3=10000000
 set /a countold=%low%
 goto countingnew
 :concountingold:
+if %count3% LSS -2000000000 set /a count3=10000000
 if %count3% LEQ 10000 (
 set /a low+=1
 set /a count3+=1
@@ -108,6 +109,7 @@ goto countingnew
 set /a countnew=%high%
 goto endcounting
 :concountingnew:
+if %count3% LSS -2000000000 set /a count3=10000000
 if %count3% LEQ 10000 (
 set /a high-=1
 set /a count3+=1
@@ -138,6 +140,16 @@ exit
 )
 goto countingnew
 :endcounting:
+
+powershell -ExecutionPolicy Bypass -File "%batdir%ps.ps1" -targetFolder "%batdir%old_archive" -startValue "%countold%" -endValue "%countnew%" -delValue "%biasval%"
+
+echo %date%>lastrun.txt
+timeout 10 /nobreak > NUL
+exit
+
+
+
+
 echo biasval: %biasval%
 echo OLD: %countold%
 echo NEW: %countnew%
