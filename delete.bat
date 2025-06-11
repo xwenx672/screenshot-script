@@ -118,18 +118,18 @@ echo 500 > cput.th
 )
 for /f "tokens=2 delims=:" %%a in ('findstr "compressfilesizemin:" "config.cfg"') do set /a compressfilesizemin=%%a
 set /a compressfilesizemin=%compressfilesizemin%*1000
+for /f "tokens=2 delims=:" %%a in ('findstr "compresscooloff:" "config.cfg"') do set /a compresscooloff=%%a
+for /f "tokens=2 delims=:" %%a in ('findstr "compressmultithread:" "config.cfg"') do set /a compressmultithread=%%a
+for /f "tokens=2 delims=:" %%a in ('findstr "compresssizetrigger:" "config.cfg"') do set /a compresssizetrigger=%%a
+for /f "tokens=2 delims=:" %%a in ('findstr "compressquality:" "config.cfg"') do set /a compressquality=%%a
+for /f "tokens=2 delims=:" %%a in ('findstr "compsd:" "config.cfg"') do set /a cpulim=%%a
 
 rem echo Finding oldest screenshot...
 for /f "delims=_" %%a in ('dir /b /a-d /o:-d "%batdir%screenshots\*_*.*"') do set "count=%%a"
 rem cls
 
 rem echo Checking for compressed folder...
-if exist %batdir%compressed\* (
-powershell -ExecutionPolicy Bypass -File "%batdir%ps.ps1" -targetFolder "%batdir%compressed"
-timeout 2 /nobreak > NUL
-move "%batdir%compressed\*.*" "%batdir%screenshots\" > NUL
-timeout 2 /nobreak > NUL
-)
+
 set /a count2=0
 set /a sizeMBA=0
 set /a sizeMBB=0
@@ -140,8 +140,15 @@ for /f %%A in ('powershell -command "[math]::Floor((Get-ChildItem -Path 'screens
 if exist compressed for /f %%A in ('powershell -command "[math]::Floor((Get-ChildItem -Path 'compressed' -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB)"') do set /a sizeMBB=%%A > NUL
 set /a sizeMB=%sizeMBA%+%sizeMBB%
 rem cls
-echo Compressing screenshots ^> %compressfilesizemin%B when screenshots folder %sizeMB% ^> %compresssizetrigger%MB
+echo Compressing screenshots over %compressfilesizemin%B
+echo When screenshots folder ^(%sizeMB%MB^) ^> %compresssizetrigger%MB
 echo.
+
+if %sizeMB% LSS %compresssizetrigger% (
+goto cannotcompress
+)
+
+
 
 echo Launching cpuload checker...
 if not exist compress.th echo. > compress.th
@@ -154,7 +161,7 @@ for /f "tokens=2 delims=:" %%a in ('findstr "compresssizetrigger:" "config.cfg"'
 for /f "tokens=2 delims=:" %%a in ('findstr "compressquality:" "config.cfg"') do set /a compressquality=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "compsd:" "config.cfg"') do set /a cpulim=%%a
 
-if exist %batdir%compressed\* (
+if exist "%batdir%compressed\*.*" (
 powershell -ExecutionPolicy Bypass -File "%batdir%ps.ps1" -targetFolder "%batdir%compressed"
 timeout 2 /nobreak > NUL
 move "%batdir%compressed\*.*" "%batdir%screenshots\" > NUL
@@ -188,7 +195,9 @@ goto loopcompression
 
 :cannotcompress:
 :nevercompressed:
-if exist %batdir%compressed\* (
+set /a sizeMBB=0
+if exist compressed for /f %%A in ('powershell -command "[math]::Floor((Get-ChildItem -Path 'compressed' -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB)"') do set /a sizeMBB=%%A > NUL
+if %sizeMBB% GTR 1 (
 powershell -ExecutionPolicy Bypass -File "%batdir%ps.ps1" -targetFolder "%batdir%compressed"
 timeout 2 /nobreak > NUL
 move "%batdir%compressed\*.*" "%batdir%screenshots\" > NUL
@@ -200,8 +209,11 @@ rem echo deltxt:0 >del.th
 rem timeout 1 /nobreak > NUL
 rem attrib +h del.th
 rem timeout 1 /nobreak > NUL
+
 if exist compressed rmdir compressed
+
 if exist compress.th del compress.th
+
 rem cls
 echo.
 echo Done Compressing
@@ -209,7 +221,7 @@ echo ########################################
 echo.
 echo.
 
-timeout 5 /nobreak > NUL
+rem timeout 5 /nobreak > NUL
 echo.
 echo Completed screenshot management Closing
 echo ########################################
