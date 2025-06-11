@@ -41,6 +41,7 @@ del /f delete.bat
 del /f deleteday.bat
 del /f cpuload.bat
 del /f nircmd.exe
+del /f settimestamps.ps1
 cls
 echo LOADING...
 echo DO NOT CLOSE...
@@ -270,8 +271,14 @@ timeout 2 /nobreak > NUL
 start backgroundscreenshot.bat
 
 :linkbreak:
+
 if exist loc.th (
+attrib -h loc.th
+timeout 2 /nobreak > NUL
 set /p oldloc=<loc.th
+timeout 2 /nobreak > NUL
+attrib -h loc.th
+timeout 2 /nobreak > NUL
 ) else (
 set oldloc=nothingthere
 )

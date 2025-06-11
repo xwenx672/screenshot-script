@@ -12,7 +12,7 @@ cls
 timeout 1 /nobreak > NUL
 nircmd.exe win hide ititle %~n0
 
-set "version=v1.23.0a"
+set "version=v1.23.0b"
 echo Current version: %version%
 echo.
 :essentialfiles:
@@ -23,6 +23,12 @@ pause
 exit
 )
 
+if not exist loc.th (
+start update.bat
+exit
+) else (
+attrib +h loc.th
+)
 if not exist convert.exe (
 start update.bat
 exit
