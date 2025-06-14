@@ -1,9 +1,26 @@
 param (
-    [string]$targetFolder,
+    [int]$progValue,
+	[string]$csvPath,
+	[string]$targetFolder,
     [int]$startValue,
     [int]$endValue,
     [int]$delValue
 )
+
+function fileCreationDateCsv {
+param (
+	[string]$targetFolder,
+	[string]$csvPath
+)
+Get-ChildItem -File -Path $targetFolder | ForEach-Object {
+    $_.LastWriteTime.ToString("yyyyMMdd")
+} | Set-Content $csvPath
+
+
+}	
+	
+
+
 
 function deleteRandomly {
 param (
@@ -57,13 +74,12 @@ Get-ChildItem -Path $targetFolder -File | ForEach-Object {
 }
 }
 
-if (-not $PSBoundParameters.ContainsKey('startValue')) {
-    if (-not $targetFolder) {
-        Write-Host "Error: You must provide a target folder."
-        exit 1
-    }
+if ($progValue -eq 0) {
+	fileCreationDateCsv -targetFolder $targetFolder -csvPath $csvPath
+} 
+if ($progValue -eq 1) {
     setTimeStamps -targetFolder $targetFolder
 }
-else {
+if ($progValue -eq 2) {
     deleteRandomly -targetFolder $targetFolder -startValue $startValue -endValue $endValue -delValue $delValue
 }

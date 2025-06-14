@@ -58,7 +58,7 @@ if %ran% == 0 goto loopstandard
 echo Deleting randomly...
 
 
-powershell -ExecutionPolicy Bypass -File "%batdir%ps.ps1" -targetFolder "%batdir%screenshots" -startValue "%countold%" -endValue "%countnew%" -delValue "%delamt%"
+powershell -ExecutionPolicy Bypass -File "%batdir%ps.ps1" -progValue 2 -targetFolder "%batdir%screenshots" -startValue "%countold%" -endValue "%countnew%" -delValue "%delamt%"
 goto end
 
 
@@ -101,7 +101,7 @@ echo Done Deleting
 echo ########################################
 echo.
 echo.
-
+if exist howMany.bat start "" /B howMany.bat
 rem COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS 
 echo Starting compression if required...
 set /a count=2000010000
@@ -162,7 +162,7 @@ for /f "tokens=2 delims=:" %%a in ('findstr "compressquality:" "config.cfg"') do
 for /f "tokens=2 delims=:" %%a in ('findstr "compsd:" "config.cfg"') do set /a cpulim=%%a
 
 if exist "%batdir%compressed\*.*" (
-powershell -ExecutionPolicy Bypass -File "%batdir%ps.ps1" -targetFolder "%batdir%compressed"
+powershell -ExecutionPolicy Bypass -File "%batdir%ps.ps1" -progValue 1 -targetFolder "%batdir%compressed"
 timeout 2 /nobreak > NUL
 move "%batdir%compressed\*.*" "%batdir%screenshots\" > NUL
 timeout 2 /nobreak > NUL
@@ -198,7 +198,7 @@ goto loopcompression
 set /a sizeMBB=0
 if exist compressed for /f %%A in ('powershell -command "[math]::Floor((Get-ChildItem -Path 'compressed' -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB)"') do set /a sizeMBB=%%A > NUL
 if %sizeMBB% GTR 1 (
-powershell -ExecutionPolicy Bypass -File "%batdir%ps.ps1" -targetFolder "%batdir%compressed"
+powershell -ExecutionPolicy Bypass -File "%batdir%ps.ps1" -progValue 1 -targetFolder "%batdir%compressed"
 timeout 2 /nobreak > NUL
 move "%batdir%compressed\*.*" "%batdir%screenshots\" > NUL
 timeout 2 /nobreak > NUL
