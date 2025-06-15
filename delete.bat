@@ -101,7 +101,7 @@ echo Done Deleting
 echo ########################################
 echo.
 echo.
-if exist howMany.bat start "" /B howMany.bat
+
 rem COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS 
 echo Starting compression if required...
 set /a count=2000010000
@@ -220,14 +220,14 @@ echo Done Compressing
 echo ########################################
 echo.
 echo.
-
-rem timeout 5 /nobreak > NUL
-echo.
-echo Completed screenshot management Closing
+echo Starting Data Record Function
 echo ########################################
+echo.
 
-timeout 5 /nobreak > NUL
-exit
+rem if exist howMany.bat start "" /B howMany.bat
+goto datarecord
+rem timeout 5 /nobreak > NUL
+
 
 
 :loopcompression:
@@ -322,3 +322,153 @@ if %count2% GEQ %compressmultithread% goto loopc
 
 goto loopcompression
 rem COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS 
+
+
+
+
+rem DATARECORD DATARECORD DATARECORD DATARECORD DATARECORD DATARECORD DATARECORD DATARECORD 
+
+
+
+:datarecord:
+
+set "dt="
+set "screeny="
+set "currentDate="
+set "fileDate="
+set "count="
+set "concatFileDate="
+set "searchFile="
+set "valo="
+set "concatValoData="
+set "oldDate="
+set "searchTerm="
+set "dateo="
+
+if exist "temp.tmp" del "temp.tmp"
+for /f "delims=" %%a in ('wmic OS Get localdatetime  ^| find "."') do set dt=%%a
+set screeny=%dt:~0,8%
+if exist "history\%screeny%screeny.th" goto skipscreenycreation
+rem del "history\%screeny%screeny.th"
+rem -%dt:~8,6%
+rem set "SORTED=%screeny%-ori.th"
+setlocal enabledelayedexpansion
+powershell -ExecutionPolicy Bypass -File "%batdir%ps.ps1" -progValue 0 -targetFolder "%batdir%screenshots" -csvPath "%cd%\temp.tmp"
+
+sort temp.tmp>> %screeny%-ori.th
+
+del temp.tmp
+
+
+set "currentDate="
+
+for /f %%D in (%screeny%-ori.th) do (
+    set "fileDate=%%D"
+    if "!fileDate!"=="!currentDate!" (
+        set /a count+=1
+    ) else (
+        if defined currentDate (
+            echo !currentDate!:!count!>> %screeny%screeny.th
+        )
+        set "currentDate=!fileDate!"
+        set count=1
+    )
+)
+
+
+if defined currentDate (
+    echo !currentDate!:!count!>> %screeny%screeny.th
+)
+:skipscreenycreation:
+if exist val.th del val.th
+if exist val2.th del val2.th
+if exist val3.th del val3.th
+if exist ScreenshotCountUp.csv del ScreenshotCountUp.csv
+
+if not exist history (
+mkdir history
+timeout 2 /nobreak > NUL
+)
+if exist "%screeny%screeny.th" move "%screeny%screeny.th" "history\%screeny%screeny.th" > NUL
+
+set "currentDate="
+
+
+for %%F in (history\*) do (
+    set "fileDate=%%~nF"
+    set "fileDate=!fileDate:~0,8!"
+	echo !fileDate!>> val.th
+)
+sort /R val.th>> val2.th
+
+for /f %%F in (val2.th) do (
+    set concatFileDate=!concatFileDate!%%F,
+)
+echo Date of Screenshot\Date of Count,%concatFileDate%>> ScreenshotCountUp.csv
+if exist val.th del val.th
+if exist val2.th del val2.th
+if exist val3.th del val3.th
+
+for %%F in (history\*) do (
+	for /f "usebackq tokens=1 delims=:" %%A in ("%%F") do (
+		echo %%A>> val.th
+	)
+)
+
+sort val.th>> val2.th
+if exist val.th del val.th
+set "currentDate="
+set "oldDate="
+for /f "usebackq tokens=1 delims=:" %%A in ("val2.th") do (
+	set "currentDate=%%A"
+	if !currentDate! NEQ !oldDate! (
+		echo %%A>> val3.th
+	)
+	set "oldDate=%%A"
+)
+if exist val.th del val.th
+
+sort /R val3.th>> val.th
+if exist val3.th del val3.th
+
+set "searchFile="
+set "dateo="
+set "valo="
+set "concatValoData="
+
+for /f %%F in (val.th) do (
+	set "searchTerm=%%F"
+	set "concatValoData="
+	for %%G in (history\*) do (
+		set "searchFile=%%G"
+		for /f "usebackq tokens=1,2 delims=:" %%A in (%%G) do (
+			set "dateo=%%A"
+			set "valo=%%B"
+			if !dateo! == !searchTerm! (
+				set "concatValoData=!concatValoData!!valo!,"
+			)
+			
+		)
+		
+	)
+	echo !searchTerm!,!concatValoData!>> ScreenshotCountUp.csv
+)
+
+if exist *-ori.th del *-ori.th
+if exist temp.tmp del temp.tmp
+if exist *screeny.th del *screeny.th
+if exist val.th del val.th
+if exist val2.th del val2.th
+if exist val3.th del val3.th
+
+
+echo.
+echo Completed Data Record Function
+echo ########################################
+echo.
+timeout 2 /nobreak > NUL
+echo.
+echo Completed screenshot management Closing
+echo ########################################
+timeout 5 /nobreak > NUL
+exit
