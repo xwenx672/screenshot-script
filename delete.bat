@@ -7,6 +7,23 @@ echo.
 setlocal EnableDelayedExpansion
 set batdir=%~dp0
 pushd "%batdir%"
+set delamt=nothing
+set delqty=nothing
+set /a delamt=%1
+set /a delqty=%2
+cls 
+if %delamt% == nothing (
+echo It is assumed this script was started not from the main script.
+echo To do so manually, create a text file in the same directory as the delete.bat called '9.txt'.
+timeout 10 /nobreak > NUL
+exit
+)
+if %delqty% == nothing (
+echo It is assumed this script was started not from the main script.
+echo To do so manually, create a text file in the same directory as the delete.bat called '9.txt'.
+timeout 10 /nobreak > NUL
+exit
+)
 rem echo Sorting del value...
 rem attrib -h del.th
 rem echo deltxt:1 >del.th
@@ -28,8 +45,6 @@ echo.
 echo.
 rem cls
 
-set /a delamt=%1
-set /a delqty=%2
 
 
 
@@ -383,6 +398,7 @@ if defined currentDate (
 if exist val.th del val.th
 if exist val2.th del val2.th
 if exist val3.th del val3.th
+if exist fileOrder.th del fileOrder.th
 if exist ScreenshotCountUp.csv del ScreenshotCountUp.csv
 
 if not exist history (
@@ -399,9 +415,10 @@ for %%F in (history\*) do (
     set "fileDate=!fileDate:~0,8!"
 	echo !fileDate!>> val.th
 )
-sort /R val.th>> val2.th
 
-for /f %%F in (val2.th) do (
+sort /R val.th>> fileOrder.th
+
+for /f %%F in (fileOrder.th) do (
     set concatFileDate=!concatFileDate!%%F,
 )
 echo Date of Screenshot\Date of Count,%concatFileDate%>> ScreenshotCountUp.csv
@@ -439,9 +456,9 @@ set "concatValoData="
 for /f %%F in (val.th) do (
 	set "searchTerm=%%F"
 	set "concatValoData="
-	for %%G in (history\*) do (
-		set "searchFile=%%G"
-		for /f "usebackq tokens=1,2 delims=:" %%A in (%%G) do (
+	for /f %%G in (fileOrder.th) do (
+		set "searchFile=!batdir!history\%%Gscreeny.th"
+		for /f "usebackq tokens=1,2 delims=:" %%A in (!searchFile!) do (
 			set "dateo=%%A"
 			set "valo=%%B"
 			if !dateo! == !searchTerm! (
@@ -454,6 +471,7 @@ for /f %%F in (val.th) do (
 	echo !searchTerm!,!concatValoData!>> ScreenshotCountUp.csv
 )
 
+if exist fileOrder.th del fileOrder.th
 if exist *-ori.th del *-ori.th
 if exist temp.tmp del temp.tmp
 if exist *screeny.th del *screeny.th
