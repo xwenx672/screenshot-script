@@ -362,7 +362,7 @@ set "dateo="
 
 if exist "temp.tmp" del "temp.tmp"
 for /f "delims=" %%a in ('wmic OS Get localdatetime  ^| find "."') do set dt=%%a
-set screeny=%dt:~0,8%
+set screeny=%dt:~0,8%-%dt:~8,6%
 if exist "history\%screeny%screeny.th" goto skipscreenycreation
 rem del "history\%screeny%screeny.th"
 rem -%dt:~8,6%
@@ -412,7 +412,7 @@ set "currentDate="
 
 for %%F in (history\*) do (
     set "fileDate=%%~nF"
-    set "fileDate=!fileDate:~0,8!"
+    set "fileDate=!fileDate:~0,8!!fileDate:~8,7!"
 	echo !fileDate!>> val.th
 )
 
