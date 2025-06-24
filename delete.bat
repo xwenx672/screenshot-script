@@ -401,6 +401,7 @@ if exist val3.th del val3.th
 if exist fileOrder.th del fileOrder.th
 if exist ScreenshotCountUp.csv del ScreenshotCountUp.csv
 
+
 if not exist history (
 mkdir history
 timeout 2 /nobreak > NUL
@@ -458,15 +459,18 @@ for /f %%F in (val.th) do (
 	set "concatValoData="
 	for /f %%G in (fileOrder.th) do (
 		set "searchFile=!batdir!history\%%Gscreeny.th"
+		set fm=0
 		for /f "usebackq tokens=1,2 delims=:" %%A in (!searchFile!) do (
 			set "dateo=%%A"
 			set "valo=%%B"
 			if !dateo! == !searchTerm! (
 				set "concatValoData=!concatValoData!!valo!,"
+				set fm=1
 			)
-			
 		)
-		
+		if !fm! == 0 (
+			set "concatValoData=!concatValoData!0,"
+		)
 	)
 	echo !searchTerm!,!concatValoData!>> ScreenshotCountUp.csv
 )
