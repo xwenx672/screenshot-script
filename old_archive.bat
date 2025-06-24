@@ -81,7 +81,7 @@ set /a low+=10000
 set /a count3+=10000
 ) else (
 set /a low+=100000
-set /a count3+=100000
+set /a count3+=1
 )
 )
 )
@@ -127,7 +127,7 @@ set /a high-=10000
 set /a count3+=10000
 ) else (
 set /a high-=100000
-set /a count3+=100000
+set /a count3+=1
 )
 )
 )
@@ -141,8 +141,7 @@ exit
 goto countingnew
 :endcounting:
 
-powershell -ExecutionPolicy Bypass -File "%batdir%ps.ps1" -targetFolder "%batdir%old_archive" -startValue "%countold%" -endValue "%countnew%" -delValue "%biasval%"
-
+powershell -ExecutionPolicy Bypass -File "%batdir%ps.ps1" -progValue 2 -targetFolder "%batdir%old_archive" -startValue "%countold%" -endValue "%countnew%" -delValue "%biasval%"
 echo %date%>lastrun.txt
 timeout 10 /nobreak > NUL
 exit
