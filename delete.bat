@@ -346,6 +346,19 @@ rem DATARECORD DATARECORD DATARECORD DATARECORD DATARECORD DATARECORD DATARECORD
 
 
 :datarecord:
+if not exist history (
+mkdir history
+timeout 2 /nobreak > NUL
+)
+
+rem val1.th Lists each screenshot's date.
+rem val2.th val1.th sorted in assending order.
+rem val3.th A list of all files currently in history.
+rem val4.th val3.th sorted in desending order.
+rem val5.th A list of all dates mentioned in the files in history.
+rem val6.th val5.th sorted in asending order.
+rem val7.th val6.th with no duplicates.
+rem val8.th val7.th with desending order.
 
 set "dt="
 set "screeny="
@@ -359,25 +372,32 @@ set "concatValoData="
 set "oldDate="
 set "searchTerm="
 set "dateo="
+if exist val1.th del val1.th
+if exist val2.th del val2.th
+if exist val3.th del val3.th
+if exist val4.th del val4.th
+if exist val5.th del val5.th
+if exist val6.th del val6.th
+if exist val7.th del val7.th
+if exist val8.th del val8.th
 
-if exist "temp.tmp" del "temp.tmp"
 for /f "delims=" %%a in ('wmic OS Get localdatetime  ^| find "."') do set dt=%%a
 set screeny=%dt:~0,8%-%dt:~8,6%
 if exist "history\%screeny%screeny.th" goto skipscreenycreation
+
 rem del "history\%screeny%screeny.th"
 rem -%dt:~8,6%
 rem set "SORTED=%screeny%-ori.th"
+
 setlocal enabledelayedexpansion
-powershell -ExecutionPolicy Bypass -File "%batdir%ps.ps1" -progValue 0 -targetFolder "%batdir%screenshots" -csvPath "%cd%\temp.tmp"
+powershell -ExecutionPolicy Bypass -File "%batdir%ps.ps1" -progValue 0 -targetFolder "%batdir%screenshots" -csvPath "%cd%\val1.th"
 
-sort temp.tmp>> %screeny%-ori.th
-
-del temp.tmp
+sort val1.th>> val2.th
 
 
 set "currentDate="
 
-for /f %%D in (%screeny%-ori.th) do (
+for /f %%D in (val2.th) do (
     set "fileDate=%%D"
     if "!fileDate!"=="!currentDate!" (
         set /a count+=1
@@ -395,17 +415,9 @@ if defined currentDate (
     echo !currentDate!:!count!>> %screeny%screeny.th
 )
 :skipscreenycreation:
-if exist val.th del val.th
-if exist val2.th del val2.th
-if exist val3.th del val3.th
-if exist fileOrder.th del fileOrder.th
 if exist ScreenshotCountUp.csv del ScreenshotCountUp.csv
 
 
-if not exist history (
-mkdir history
-timeout 2 /nobreak > NUL
-)
 if exist "%screeny%screeny.th" move "%screeny%screeny.th" "history\%screeny%screeny.th" > NUL
 
 set "currentDate="
@@ -414,50 +426,46 @@ set "currentDate="
 for %%F in (history\*) do (
     set "fileDate=%%~nF"
     set "fileDate=!fileDate:~0,8!!fileDate:~8,7!"
-	echo !fileDate!>> val.th
+	echo !fileDate!>> val3.th
 )
 
-sort /R val.th>> fileOrder.th
+sort /R val3.th>> val4.th
 
-for /f %%F in (fileOrder.th) do (
+for /f %%F in (val4.th) do (
     set concatFileDate=!concatFileDate!%%F,
 )
 echo Date of Screenshot\Date of Count,%concatFileDate%>> ScreenshotCountUp.csv
-if exist val.th del val.th
-if exist val2.th del val2.th
-if exist val3.th del val3.th
 
 for %%F in (history\*) do (
 	for /f "usebackq tokens=1 delims=:" %%A in ("%%F") do (
-		echo %%A>> val.th
+		echo %%A>> val5.th
 	)
 )
 
-sort val.th>> val2.th
-if exist val.th del val.th
+sort val5.th>> val6.th
+
 set "currentDate="
 set "oldDate="
-for /f "usebackq tokens=1 delims=:" %%A in ("val2.th") do (
+for /f "usebackq tokens=1 delims=:" %%A in ("val6.th") do (
 	set "currentDate=%%A"
 	if !currentDate! NEQ !oldDate! (
-		echo %%A>> val3.th
+		echo %%A>> val7.th
 	)
 	set "oldDate=%%A"
 )
-if exist val.th del val.th
 
-sort /R val3.th>> val.th
-if exist val3.th del val3.th
+sort /R val7.th>> val8.th
+
 
 set "searchFile="
 set "dateo="
 set "valo="
 set "concatValoData="
 
-for /f %%F in (val.th) do (
+for /f %%F in (val8.th) do (
 	set "searchTerm=%%F"
 	set "concatValoData="
-	for /f %%G in (fileOrder.th) do (
+	for /f %%G in (val4.th) do (
 		set "searchFile=!batdir!history\%%Gscreeny.th"
 		set fm=0
 		for /f "usebackq tokens=1,2 delims=:" %%A in (!searchFile!) do (
@@ -475,13 +483,14 @@ for /f %%F in (val.th) do (
 	echo !searchTerm!,!concatValoData!>> ScreenshotCountUp.csv
 )
 
-if exist fileOrder.th del fileOrder.th
-if exist *-ori.th del *-ori.th
-if exist temp.tmp del temp.tmp
-if exist *screeny.th del *screeny.th
-if exist val.th del val.th
+if exist val1.th del val1.th
 if exist val2.th del val2.th
 if exist val3.th del val3.th
+if exist val4.th del val4.th
+if exist val5.th del val5.th
+if exist val6.th del val6.th
+if exist val7.th del val7.th
+if exist val8.th del val8.th
 
 
 echo.
