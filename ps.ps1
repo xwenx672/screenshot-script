@@ -12,8 +12,12 @@ param (
 	[string]$targetFolder,
 	[string]$csvPath
 )
+$today = Get-Date -Format "yyyyMMdd"
 Get-ChildItem -File -Path $targetFolder | ForEach-Object {
-    $_.LastWriteTime.ToString("yyyyMMdd")
+    $fileDate = $_.LastWriteTime.ToString("yyyyMMdd")
+	if ($fileDate -ne $today) {
+            $fileDate
+        }
 } | Set-Content $csvPath
 
 

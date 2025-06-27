@@ -22,7 +22,7 @@ set /p fileshis=<fileshis.th
 set /a fileshis=100
 )
 for /f "delims=" %%i in ('dir /a-d /w /b "%cd%\old_archive" ^| find /v /c ""') do set files=%%i
-if %files% GEQ %fileshis% (
+if %files% GTR %fileshis% (
 powershell -ExecutionPolicy Bypass -File "%batdir%ps.ps1" -progValue 1 -targetFolder "%batdir%old_archive"
 )
 timeout 1 /nobreak > NUL
