@@ -158,7 +158,7 @@ if %lrmcapmin% == nodata set /a lrmcapmin=2
 if %lrmcapmax% == nodata set /a lrmcapmax=5
 if %lagcompcooldowncfg% == nodata set /a lagcompcooldowncfg=100
 if %restarttime% == nodata set /a restarttime=86400
-if %maxagedfiles% == nodata set /a maxagedfiles=14
+if %maxagedfiles% == nodata set /a maxagedfiles=30
 if %compresscooloff% == nodata set /a compresscooloff=60
 if %compressmultithread% == nodata set /a compressmultithread=100
 if %compresssizetrigger% == nodata set /a compresssizetrigger=500000
@@ -166,7 +166,7 @@ if %compressquality% == nodata set /a compressquality=85
 if %sizecommandfreq% == nodata set /a sizecommandfreq=10
 if %compressfilesizemin% == nodata set /a compressfilesizemin=500
 if %compsd% == nodata set /a compsd=90
-if %ran% == nodata set /a ran=0
+if %ran% == nodata set /a ran=1
 
 del config.cfg
 timeout 1 /nobreak > NUL
