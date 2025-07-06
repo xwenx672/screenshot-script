@@ -11,7 +11,6 @@ timeout 1 /nobreak > NUL
 set lastrun=1
 )
 
-if %lastrun% == %date% exit
 
 rem if not exist biasvalue.txt (
 rem echo 100> biasvalue.txt
@@ -22,13 +21,16 @@ set /p fileshis=<fileshis.th
 set /a fileshis=100
 )
 for /f "delims=" %%i in ('dir /a-d /w /b "%cd%\old_archive" ^| find /v /c ""') do set files=%%i
+nircmd.exe win hide ititle %~n0
+
+if %lastrun% == %date% exit
 if %files% GTR %fileshis% (
 powershell -ExecutionPolicy Bypass -File "%batdir%ps.ps1" -progValue 1 -targetFolder "%batdir%old_archive"
 )
 timeout 1 /nobreak > NUL
 
-set /a biasval=%files%/200
-if %biasval% LSS 1000 set /a biasval=1000
+set /a biasval=%files%/100
+if %biasval% LSS 500 set /a biasval=500
 
 
 rem set /p biasval=<biasvalue.txt
