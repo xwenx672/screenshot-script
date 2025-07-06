@@ -12,7 +12,7 @@ cls
 timeout 1 /nobreak > NUL
 nircmd.exe win hide ititle %~n0
 
-set "version=v1.23.0"
+set "version=v1.23.1"
 echo Current version: %version%
 echo.
 :essentialfiles:
@@ -78,9 +78,34 @@ exit
 attrib +h ps.ps1
 )
 
+if exist update0.th goto skipupdate
 
+echo Checking for updates...
+if exist version.txt del version.txt
+:redoconcheck:
 
+powershell -Command "try { Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/xwenx672/screenshot-script/refs/heads/main/version.txt' -UseBasicParsing -TimeoutSec 5 | Out-Null; exit 0 } catch { exit 1 }"
+if %errorlevel% NEQ 0 (
+echo Cannot update.
+timeout 3 /nobreak > NUL
+goto skipupdate
+)
 
+for /f "delims=" %%A in ('powershell -command "Invoke-RestMethod 'https://raw.githubusercontent.com/xwenx672/screenshot-script/refs/heads/main/version.txt'"') do (
+    set "curversiontxt=%%A"
+)
+timeout 2 /nobreak > NUL
+
+if %curversiontxt% == %version% goto skipupdate
+if exist update1.th for /f "delims=" %%i in ('cscript //nologo "%batdir%yoke.vbs"') do (set ans=%%i)
+timeout 1 /nobreak > NUL
+if %ans% == no goto skipupdate
+del run*.th
+start "" /B update.bat
+timeout 5 /nobreak > NUL
+exit
+
+:skipupdate:
 
 if not exist screenshots mkdir screenshots
 
@@ -195,65 +220,6 @@ set /a lrmcapminp1=%lrmcapmin%+1
 nircmd.exe win %showhide% ititle %~n0
 
 nircmd.exe win setsize title %~n0 0 0 650 450
-if exist update0.th goto skipupdate
-
-echo Checking for updates...
-if exist version.txt del version.txt
-:redoconcheck:
-rem set /a countconnection+=1
-rem timeout 1 /nobreak > NUL
-
-rem https://raw.githubusercontent.com/xwenx672/screenshot-script/refs/heads/main/version.txt
-
-powershell -Command "try { Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/xwenx672/screenshot-script/refs/heads/main/version.txt' -UseBasicParsing -TimeoutSec 5 | Out-Null; exit 0 } catch { exit 1 }"
-if %errorlevel% NEQ 0 (
-echo Cannot update.
-timeout 3 /nobreak > NUL
-goto skipupdate
-)
-rem powershell -Command "try { Invoke-WebRequest -Uri 'https://github.com/xwenx672/screenshot-script/archive/refs/heads/main.zip' -UseBasicParsing -TimeoutSec 5 | Out-Null; exit 0 } catch { exit 1 }"
-rem if %errorlevel%==0 (
-rem set el=0
-rem ) else (
-rem set el=1
-rem )
-
-
-
-for /f "delims=" %%A in ('powershell -command "Invoke-RestMethod 'https://raw.githubusercontent.com/xwenx672/screenshot-script/refs/heads/main/version.txt'"') do (
-    set "curversiontxt=%%A"
-)
-timeout 2 /nobreak > NUL
-rem if %errorLevel% == 0 (
-rem 	powershell -c "Invoke-WebRequest -Uri 'https://www.dropbox.com/s/o72g1c2aj616yhm/version.txt?dl=1' -OutFile '%batdir%\version.txt'"
-rem 	) else (
-rem 	echo Waiting for connection...
-rem 	if %countconnection% LSS 5 goto redoconcheck
-rem 	echo Cannot check for updates, skipping...
-rem 	timeout 2 /nobreak > NUL
-rem 	goto skipupdate
-rem )
-rem :waitingforversion:
-rem if not exist version.txt (
-rem set /a countversion+=1
-rem timeout 1 /nobreak > NUL
-rem if %countversion% LEQ 2 goto waitingforversion
-rem echo Cannot update, no idea why.
-rem timeout 5
-rem goto skipupdate
-rem )
-rem for /f "tokens=* delims=" %%a in ('type version.txt') do set curversiontxt=%%a
-rem timeout 1 /nobreak > NUL
-rem del version.txt
-if %curversiontxt% == %version% goto skipupdate
-if exist update1.th for /f "delims=" %%i in ('cscript //nologo "%batdir%yoke.vbs"') do (set ans=%%i)
-timeout 1 /nobreak > NUL
-if %ans% == no goto skipupdate
-del run*.th
-start "" /B update.bat
-timeout 5 /nobreak > NUL
-exit
-:skipupdate:
 
 echo Setting advanced vals...
 
