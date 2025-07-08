@@ -118,7 +118,7 @@ set compresssizetrigger=nodata
 set sizecommandfreq=nodata
 set compressquality=nodata
 set compressfilesizemin=nodata
-set compssd=nodata
+set compsd=nodata
 set ran=nodata
 
 for /f "tokens=2 delims=:" %%a in ('findstr "updatevals:" "config.cfg"') do set /a updatevals=%%a
