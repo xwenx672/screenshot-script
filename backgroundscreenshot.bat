@@ -84,14 +84,14 @@ echo Checking for updates...
 if exist version.txt del version.txt
 :redoconcheck:
 
-powershell -Command "try { Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/xwenx672/screenshot-script/refs/heads/v1.24.0/version.txt' -UseBasicParsing -TimeoutSec 5 | Out-Null; exit 0 } catch { exit 1 }"
+powershell -Command "try { Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/xwenx672/screenshot-script/refs/heads/1.24.0/version.txt' -UseBasicParsing -TimeoutSec 5 | Out-Null; exit 0 } catch { exit 1 }"
 if %errorlevel% NEQ 0 (
 echo Cannot update.
 timeout 3 /nobreak > NUL
 goto skipupdate
 )
 
-for /f "delims=" %%A in ('powershell -command "Invoke-RestMethod 'https://raw.githubusercontent.com/xwenx672/screenshot-script/refs/heads/v1.24.0/version.txt'"') do (
+for /f "delims=" %%A in ('powershell -command "Invoke-RestMethod 'https://raw.githubusercontent.com/xwenx672/screenshot-script/refs/heads/1.24.0/version.txt'"') do (
     set "curversiontxt=%%A"
 )
 timeout 2 /nobreak > NUL
@@ -218,6 +218,7 @@ if %nodataissue% == 1 (
 start update.bat
 exit
 )
+timeout 2 /nobreak > NUL
 set /a ldplus=%ld%+1
 set /a lrmcapminp1=%lrmcapmin%+1
 nircmd.exe win %showhide% ititle %~n0

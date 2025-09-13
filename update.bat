@@ -1,5 +1,5 @@
 @echo off
-set "zn=v1.24.0"
+set "zn=1.24.0"
 title %~n0
 set batdir=%~dp0
 pushd "%batdir%"
