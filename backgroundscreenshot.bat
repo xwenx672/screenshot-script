@@ -145,6 +145,7 @@ set compressquality=nodata
 set compressfilesizemin=nodata
 set compsd=nodata
 set ran=nodata
+set ld=nodata
 
 for /f "tokens=2 delims=:" %%a in ('findstr "updatevals:" "config.cfg"') do set /a updatevals=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "timer:" "config.cfg"') do set /a timer=%%a
@@ -177,6 +178,7 @@ for /f "tokens=2 delims=:" %%a in ('findstr "compressquality:" "config.cfg"') do
 for /f "tokens=2 delims=:" %%a in ('findstr "compressfilesizemin:" "config.cfg"') do set /a compressfilesizemin=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "compsd:" "config.cfg"') do set /a compsd=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "ran:" "config.cfg"') do set /a ran=%%a
+for /f "tokens=2 delims=:" %%a in ('findstr "ld:" "config.cfg"') do set /a ld=%%a
 
 set /a nodataissue=0
 if %updatevals% == nodata set /a nodataissue=1
@@ -210,12 +212,13 @@ if %compressquality% == nodata set /a nodataissue=1
 if %compressfilesizemin% == nodata set /a nodataissue=1
 if %compsd% == nodata set /a nodataissue=1
 if %ran% == nodata set /a nodataissue=1
+if %ld% == nodata set /a nodataissue=1
 
 if %nodataissue% == 1 (
 start update.bat
 exit
 )
-
+set /a ldplus=%ld%+1
 set /a lrmcapminp1=%lrmcapmin%+1
 nircmd.exe win %showhide% ititle %~n0
 
@@ -568,14 +571,14 @@ cd..
 
 
 set /a trimscreenyold=%trimscreenynew%
-if exist 9.txt (
-set /a deltxt=11
-del 9.txt
+if exist ldplus.txt (
+set /a deltxt=%ldplus%
+del ldplus.txt
 )
-if %deltxt% LEQ 10 (
+if %deltxt% LEQ %ld% (
 set /a deltxt+=1
-) else if %deltxt% == 11 (
+) else if %deltxt% == %ldplus% (
 start "" /B delete.bat %delamt% %delqty%
-set /a deltxt=100
+set /a deltxt=%ld%+100
 )
 goto lrmskip
