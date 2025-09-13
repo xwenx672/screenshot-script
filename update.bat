@@ -102,6 +102,7 @@ set compressquality=nodata
 set compressfilesizemin=nodata
 set compsd=nodata
 set ran=nodata
+set ld=nodata
 
 for /f "tokens=2 delims=:" %%a in ('findstr "updatevals:" "config.cfg"') do set /a updatevals=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "timer:" "config.cfg"') do set /a timer=%%a
@@ -134,6 +135,7 @@ for /f "tokens=2 delims=:" %%a in ('findstr "compressquality:" "config.cfg"') do
 for /f "tokens=2 delims=:" %%a in ('findstr "compressfilesizemin:" "config.cfg"') do set /a compressfilesizemin=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "compsd:" "config.cfg"') do set /a compsd=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "ran:" "config.cfg"') do set /a ran=%%a
+for /f "tokens=2 delims=:" %%a in ('findstr "ld:" "config.cfg"') do set /a ld=%%a
 
 set /a nodataissue=0
 
@@ -167,6 +169,7 @@ if %sizecommandfreq% == nodata set /a sizecommandfreq=10
 if %compressfilesizemin% == nodata set /a compressfilesizemin=500
 if %compsd% == nodata set /a compsd=90
 if %ran% == nodata set /a ran=1
+if %ld% == nodata set /a ld=10
 
 del config.cfg
 timeout 1 /nobreak > NUL
@@ -266,6 +269,9 @@ echo.>>config.cfg
 echo If 1, then screenshots will be randomly chosen during deletion. >>config.cfg
 echo If 0, screenshots will be deleted starting from the lowest ID, and progress incremetally. >>config.cfg
 echo ran:%ran%>>config.cfg
+echo.>>config.cfg
+echo Higher number of loops means the deletions will happen later in to the script after boot.>>config.cfg
+echo ld:%ld%>>config.cfg
 echo.>>config.cfg
 timeout 2 /nobreak > NUL
 start backgroundscreenshot.bat
