@@ -12,7 +12,7 @@ cls
 timeout 1 /nobreak > NUL
 nircmd.exe win hide ititle %~n0
 
-set "version=v1.23.1"
+set "version=v1.24.0"
 echo Current version: %version%
 echo.
 :essentialfiles:
@@ -84,14 +84,14 @@ echo Checking for updates...
 if exist version.txt del version.txt
 :redoconcheck:
 
-powershell -Command "try { Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/xwenx672/screenshot-script/refs/heads/main/version.txt' -UseBasicParsing -TimeoutSec 5 | Out-Null; exit 0 } catch { exit 1 }"
+powershell -Command "try { Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/xwenx672/screenshot-script/refs/heads/v1.24.0/version.txt' -UseBasicParsing -TimeoutSec 5 | Out-Null; exit 0 } catch { exit 1 }"
 if %errorlevel% NEQ 0 (
 echo Cannot update.
 timeout 3 /nobreak > NUL
 goto skipupdate
 )
 
-for /f "delims=" %%A in ('powershell -command "Invoke-RestMethod 'https://raw.githubusercontent.com/xwenx672/screenshot-script/refs/heads/main/version.txt'"') do (
+for /f "delims=" %%A in ('powershell -command "Invoke-RestMethod 'https://raw.githubusercontent.com/xwenx672/screenshot-script/refs/heads/v1.24.0/version.txt'"') do (
     set "curversiontxt=%%A"
 )
 timeout 2 /nobreak > NUL
