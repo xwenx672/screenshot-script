@@ -3,18 +3,21 @@ setlocal EnableDelayedExpansion
 title %~n0
 set batdir=%~dp0
 pushd "%batdir%"
+set findrange=0
+:loop:
+
+
+for /f %%A in ('powershell -command "(Get-Date).DayOfYear"') do set /a doy=%%A
 
 if exist lastrun.txt (
 set /p lastrun=<lastrun.txt
 timeout 1 /nobreak > NUL
 ) else (
-set lastrun=1
+set /a lastrun=%doy%
+echo %doy%>lastrun.txt
 )
 
 
-rem if not exist biasvalue.txt (
-rem echo 100> biasvalue.txt
-rem )
 if exist fileshis.th (
 set /p fileshis=<fileshis.th
 ) else (
@@ -23,29 +26,21 @@ set /a fileshis=100
 for /f "delims=" %%i in ('dir /a-d /w /b "%cd%\old_archive" ^| find /v /c ""') do set files=%%i
 nircmd.exe win hide ititle %~n0
 
-if %lastrun% == %date% exit
+if %lastrun% == %doy% exit
+
+
 if %files% GTR %fileshis% (
 powershell -ExecutionPolicy Bypass -File "%batdir%ps.ps1" -progValue 1 -targetFolder "%batdir%old_archive"
 )
 timeout 1 /nobreak > NUL
 
-set /a biasval=%files%/100
+set /a biasval=(%files%/100)
 if %biasval% LSS 500 set /a biasval=500
 
 
-rem set /p biasval=<biasvalue.txt
 
+if %findrange% NEQ 0 goto endcounting
 
-rem set /a biasval=(%biasval%*101)/100
-
-rem echo %biasval%
-
-
-
-
-rem timeout 2 /nobreak > NUL
-rem for /f "delims=_" %%a in ('dir /b /a-d /o:d "%batdir%old_archive\*"') do set "countold=%%a"
-rem for /f "delims=_" %%a in ('dir /b /a-d /o:-d "%batdir%old_archive\*"') do set "countnew=%%a"
 
 
 
@@ -59,13 +54,13 @@ nircmd.exe win setsize title %~n0 0 0 650 450
 :countingold:
 echo %low% %count3%
 if not exist %batdir%old_archive\%low%_* goto concountingold
-if %count3% GTR 100000 (
-set /a low-=100000
+if %count3% GTR 10000 (
+set /a low-=10000
 set /a count3=-5000
 goto countingold
 )
-if %count3% GTR 10000 (
-set /a low-=10000
+if %count3% GTR 1000 (
+set /a low-=1000
 set /a count3=-500
 goto countingold
 )
@@ -75,9 +70,13 @@ set /a countold=%low%
 goto countingnew
 :concountingold:
 if %count3% LSS -2000000000 set /a count3=10000000
-if %count3% LEQ 10000 (
+if %count3% LEQ 1000 (
 set /a low+=1
 set /a count3+=1
+) else (
+if %count3% LEQ 10000 (
+set /a low+=10
+set /a count3+=10
 ) else (
 if %count3% LEQ 100000 (
 set /a low+=100
@@ -87,11 +86,7 @@ if %count3% LEQ 1000000 (
 set /a low+=1000
 set /a count3+=1000
 ) else (
-if %count3% LEQ 10000000 (
 set /a low+=10000
-set /a count3+=10000
-) else (
-set /a low+=100000
 set /a count3+=1
 )
 )
@@ -106,13 +101,13 @@ goto countingold
 :countingnew:
 echo %high% %count3%
 if not exist %batdir%old_archive\%high%_* goto concountingnew
-if %count3% GTR 100000 (
-set /a high+=100000
+if %count3% GTR 10000 (
+set /a high+=10000
 set /a count3=-5000
 goto countingnew
 )
-if %count3% GTR 10000 (
-set /a high+=10000
+if %count3% GTR 1000 (
+set /a high+=1000
 set /a count3=-500
 goto countingnew
 )
@@ -121,9 +116,13 @@ set /a countnew=%high%
 goto endcounting
 :concountingnew:
 if %count3% LSS -2000000000 set /a count3=10000000
-if %count3% LEQ 10000 (
+if %count3% LEQ 1000 (
 set /a high-=1
 set /a count3+=1
+) else (
+if %count3% LEQ 10000 (
+set /a high-=10
+set /a count3+=10
 ) else (
 if %count3% LEQ 100000 (
 set /a high-=100
@@ -133,11 +132,7 @@ if %count3% LEQ 1000000 (
 set /a high-=1000
 set /a count3+=1000
 ) else (
-if %count3% LEQ 10000000 (
 set /a high-=10000
-set /a count3+=10000
-) else (
-set /a high-=100000
 set /a count3+=1
 )
 )
@@ -150,11 +145,16 @@ pause
 exit
 )
 goto countingnew
+
 :endcounting:
-
+set findrange=1
 powershell -ExecutionPolicy Bypass -File "%batdir%ps.ps1" -progValue 2 -targetFolder "%batdir%old_archive" -startValue "%countold%" -endValue "%countnew%" -delValue "%biasval%"
-echo %date%>lastrun.txt
+set /a newval=%lastrun%+1
+echo %newval%>lastrun.txt
 
+if %newval% LSS %doy% goto loop
+pause
+exit
 :datarecord:
 if not exist historyarchive (
 mkdir historyarchive
@@ -307,3 +307,19 @@ for /f "delims=" %%i in ('dir /a-d /w /b "%cd%\old_archive" ^| find /v /c ""') d
 echo %files% > fileshis.th
 
 exit
+exit
+exit
+exit
+exit
+exit
+exit
+
+
+
+
+rem RUBBISH RUBBISH RUBBISH RUBBISH RUBBISH RUBBISH RUBBISH RUBBISH RUBBISH RUBBISH RUBBISH RUBBISH
+rem for /f "delims=" %%a in ('wmic OS Get localdatetime  ^| find "."') do set dt=%%a
+rem set day=%dt:~6,2%
+rem set month=%dt:~4,2%*
+rem set year=%dt:~0,4%
+rem RUBBISH RUBBISH RUBBISH RUBBISH RUBBISH RUBBISH RUBBISH RUBBISH RUBBISH RUBBISH RUBBISH RUBBISH
