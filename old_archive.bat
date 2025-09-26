@@ -3,7 +3,52 @@ setlocal EnableDelayedExpansion
 title %~n0
 set batdir=%~dp0
 pushd "%batdir%"
-set findrange=0
+set /a findrange=0
+
+if exist lastrunsearch.txt (
+echo lastrunsearch.txt DOES exist
+set /p lastrunsearch=<lastrunsearch.txt
+timeout 2 /nobreak > NUL
+set /a lastrunsearch=%lastrunsearch%-1
+set /a findrange=1
+) else (
+echo lastrunsearch.txt DOES NOT exist
+set /a findrange=0
+set /a lastrunsearch=10
+timeout 1 /nobreak > NUL
+)
+
+if %lastrunsearch% LEQ 0 (
+echo lastrunsearch LEQ 0 IS true: %lastrunsearch%
+set /a findrange=0
+set /a lastrunsearch=10
+timeout 1 /nobreak > NUL
+) else (
+echo lastrunsearch LEQ 0 NOT true: %lastrunsearch%
+)
+
+if exist uppervalue.txt (
+echo uppervalue.txt does exist
+set /p uppervalue=<uppervalue.txt
+) else (
+set /a findrange=0
+echo uppervalue.txt does NOT exist
+)
+
+if exist lowervalue.txt (
+echo lowervalue.txt does exist
+set /p lowervalue=<lowervalue.txt
+) else (
+set /a findrange=0
+echo lowervalue.txt does NOT exist
+)
+echo %lastrunsearch% > lastrunsearch.txt
+echo lowervalue=%lowervalue%
+echo uppervalue=%uppervalue%
+echo findrange=%findrange%
+echo lastrunsearch=%lastrunsearch%
+echo.
+
 :loop:
 
 
@@ -18,13 +63,15 @@ echo %doy%>lastrun.txt
 )
 
 
+
+
 if exist fileshis.th (
 set /p fileshis=<fileshis.th
 ) else (
 set /a fileshis=100
 )
 for /f "delims=" %%i in ('dir /a-d /w /b "%cd%\old_archive" ^| find /v /c ""') do set files=%%i
-nircmd.exe win hide ititle %~n0
+rem nircmd.exe win hide ititle %~n0
 
 if %lastrun% == %doy% exit
 
@@ -67,6 +114,7 @@ goto countingold
 
 set /a count3=0
 set /a countold=%low%
+echo %low% > lowervalue.txt
 goto countingnew
 :concountingold:
 if %count3% LSS -2000000000 set /a count3=10000000
@@ -113,6 +161,7 @@ goto countingnew
 )
 
 set /a countnew=%high%
+echo %high% > uppervalue.txt
 goto endcounting
 :concountingnew:
 if %count3% LSS -2000000000 set /a count3=10000000
@@ -153,8 +202,6 @@ set /a newval=%lastrun%+1
 echo %newval%>lastrun.txt
 
 if %newval% LSS %doy% goto loop
-pause
-exit
 :datarecord:
 if not exist historyarchive (
 mkdir historyarchive
