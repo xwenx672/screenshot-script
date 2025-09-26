@@ -196,7 +196,9 @@ exit
 goto countingnew
 
 :endcounting:
-set findrange=1
+set /a countold=%lowervalue%
+set /a countnew=%uppervalue%
+rem set findrange=1
 powershell -ExecutionPolicy Bypass -File "%batdir%ps.ps1" -progValue 2 -targetFolder "%batdir%old_archive" -startValue "%countold%" -endValue "%countnew%" -delValue "%biasval%"
 set /a newval=%lastrun%+1
 echo %newval%>lastrun.txt
