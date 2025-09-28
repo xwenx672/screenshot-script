@@ -5,27 +5,27 @@ set batdir=%~dp0
 pushd "%batdir%"
 set /a findrange=0
 
-if exist lastrunsearch.txt (
-echo lastrunsearch.txt DOES exist
-set /p lastrunsearch=<lastrunsearch.txt
-timeout 2 /nobreak > NUL
-set /a lastrunsearch=%lastrunsearch%-1
-set /a findrange=1
-) else (
-echo lastrunsearch.txt DOES NOT exist
-set /a findrange=0
-set /a lastrunsearch=10
-timeout 1 /nobreak > NUL
-)
+rem if exist lastrunsearch.txt (
+rem echo lastrunsearch.txt DOES exist
+rem set /p lastrunsearch=<lastrunsearch.txt
+rem timeout 2 /nobreak > NUL
+rem set /a lastrunsearch=%lastrunsearch%-1
+rem set /a findrange=1
+rem ) else (
+rem echo lastrunsearch.txt DOES NOT exist
+rem set /a findrange=0
+rem set /a lastrunsearch=10
+rem timeout 1 /nobreak > NUL
+rem )
 
-if %lastrunsearch% LEQ 0 (
-echo lastrunsearch LEQ 0 IS true: %lastrunsearch%
-set /a findrange=0
-set /a lastrunsearch=10
-timeout 1 /nobreak > NUL
-) else (
-echo lastrunsearch LEQ 0 NOT true: %lastrunsearch%
-)
+rem if %lastrunsearch% LEQ 0 (
+rem echo lastrunsearch LEQ 0 IS true: %lastrunsearch%
+rem set /a findrange=0
+rem set /a lastrunsearch=10
+rem timeout 1 /nobreak > NUL
+rem ) else (
+rem echo lastrunsearch LEQ 0 NOT true: %lastrunsearch%
+rem )
 
 if exist uppervalue.txt (
 echo uppervalue.txt does exist
@@ -42,11 +42,9 @@ set /p lowervalue=<lowervalue.txt
 set /a findrange=0
 echo lowervalue.txt does NOT exist
 )
-echo %lastrunsearch% > lastrunsearch.txt
-echo lowervalue=%lowervalue%
-echo uppervalue=%uppervalue%
-echo findrange=%findrange%
-echo lastrunsearch=%lastrunsearch%
+rem echo %lastrunsearch% > lastrunsearch.txt
+
+rem echo lastrunsearch=%lastrunsearch%
 echo.
 
 :loop:
@@ -78,9 +76,14 @@ if %lastrun% == %doy% exit
 
 if %files% GTR %fileshis% (
 powershell -ExecutionPolicy Bypass -File "%batdir%ps.ps1" -progValue 1 -targetFolder "%batdir%old_archive"
+set /a findrange=0
+) else (
+set /a findrange=1
 )
 timeout 1 /nobreak > NUL
-
+echo lowervalue=%lowervalue%
+echo uppervalue=%uppervalue%
+echo findrange=%findrange%
 set /a biasval=(%files%/100)
 if %biasval% LSS 500 set /a biasval=500
 
