@@ -7,6 +7,9 @@ echo.
 setlocal EnableDelayedExpansion
 set batdir=%~dp0
 pushd "%batdir%"
+
+set /a delexeid=%random%
+echo deleting this th file will close the del script>rundel%delexeid%.th
 set delamt=nothing
 set delqty=nothing
 set /a delamt=%1
@@ -31,7 +34,11 @@ rem attrib +h del.th
 
 for /f "tokens=2 delims=:" %%a in ('findstr "maxagedfiles:" "config.cfg"') do set maxagedfiles=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "ran:" "config.cfg"') do set ran=%%a
-
+if not exist rundel%delexeid%.th (
+echo %delexeid%.th does not exist, exiting delscript.
+timeout 5 /nobreak > NUL
+exit
+)
 echo Daydeleting screenshots older than %maxagedfiles% days...
 
 timeout 1 /nobreak > NUL
@@ -44,10 +51,43 @@ echo ########################################
 echo.
 echo.
 rem cls
+if %ran% == 0 goto skipnewestfile
 
+for /f "tokens=2 delims=:" %%a in ('findstr "delminscreenys:" "config.cfg"') do set /a delminscreenys=%%a
+timeout 1 /nobreak > NUL
+if not exist history (
+echo Cannot check for dates with low count, as no data is recorded yet.
+goto skipnewestfile
+)
+set newestfile=nodata
+for /f "delims=" %%F in ('dir "history" /a:-d /o:d /t:w /b') do set "newestfile=%%F"
 
+if %newestfile% == nodata (
+echo Cannot check for dates with low count, as no data is recorded yet.
+goto skipnewestfile
+)
 
+if not exist rundel%delexeid%.th (
+echo rundel%delexeid%.th does not exist, exiting delscript.
+timeout 5 /nobreak > NUL
+exit
+)
 
+for /f "tokens=1,2 delims=:" %%A in (history\%newestfile%) do (
+set dateval=%%A
+set /a countval=%%B
+if !countval! LSS !delminscreenys! (
+forfiles /p "screenshots" /s /m "*_!dateval!-*.*" /c "cmd /c echo Deleting @path && del /f /q @path"
+)
+)
+
+echo.
+echo Done Mindeleting
+echo ########################################
+echo.
+echo.
+
+:skipnewestfile:
 
 set /a count2=0
 set /a targetscreenshot=0
@@ -63,6 +103,12 @@ set /a countold=%count%
 for /f "delims=_" %%a in ('dir /b /a-d /o:d "%batdir%screenshots\*_*.*"') do set "countnew=%%a"
 
 timeout 2 /nobreak > NUL
+
+if not exist rundel%delexeid%.th (
+echo rundel%delexeid%.th does not exist, exiting delscript.
+timeout 5 /nobreak > NUL
+exit
+)
 
 if %files% LSS %delqty% goto end
 
@@ -116,7 +162,11 @@ echo Done Deleting
 echo ########################################
 echo.
 echo.
-
+if not exist rundel%delexeid%.th (
+echo rundel%delexeid%.th does not exist, exiting delscript.
+timeout 5 /nobreak > NUL
+exit
+)
 rem COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS COMPRESS 
 echo Starting compression if required...
 set /a count=2000010000
@@ -164,6 +214,11 @@ goto cannotcompress
 )
 
 
+if not exist rundel%delexeid%.th (
+echo rundel%delexeid%.th does not exist, exiting delscript.
+timeout 5 /nobreak > NUL
+exit
+)
 
 echo Launching cpuload checker...
 if not exist compress.th echo. > compress.th
@@ -235,6 +290,13 @@ echo Done Compressing
 echo ########################################
 echo.
 echo.
+
+if not exist rundel%delexeid%.th (
+echo rundel%delexeid%.th does not exist, exiting delscript.
+timeout 5 /nobreak > NUL
+exit
+)
+
 echo Starting Data Record Function
 echo ########################################
 echo.
@@ -390,10 +452,13 @@ rem -%dt:~8,6%
 rem set "SORTED=%screeny%-ori.th"
 
 setlocal enabledelayedexpansion
+echo Making val1.th
 powershell -ExecutionPolicy Bypass -File "%batdir%ps.ps1" -progValue 0 -targetFolder "%batdir%screenshots" -csvPath "%cd%\val1.th"
+echo Made val1.th
 
+echo Making val2.th
 sort val1.th>> val2.th
-
+echo Made val2.th
 
 set "currentDate="
 
@@ -422,28 +487,36 @@ if exist "%screeny%screeny.th" move "%screeny%screeny.th" "history\%screeny%scre
 
 set "currentDate="
 
-
+echo Making val3.th
 for %%F in (history\*) do (
     set "fileDate=%%~nF"
     set "fileDate=!fileDate:~0,8!!fileDate:~8,7!"
 	echo !fileDate!>> val3.th
 )
+echo Made val3.th
 
+echo Making val4.th
 sort /R val3.th>> val4.th
+echo Made val4.th
 
 for /f %%F in (val4.th) do (
     set concatFileDate=!concatFileDate!%%F,
 )
 echo Date of Screenshot\Date of Count,%concatFileDate%>> ScreenshotCountUp.csv
 
+echo Making val5.th
 for %%F in (history\*) do (
 	for /f "usebackq tokens=1 delims=:" %%A in ("%%F") do (
 		echo %%A>> val5.th
 	)
 )
+echo Made val5.th
 
+echo Making val6.th
 sort val5.th>> val6.th
+echo Made val6.th
 
+echo Making val7.th
 set "currentDate="
 set "oldDate="
 for /f "usebackq tokens=1 delims=:" %%A in ("val6.th") do (
@@ -453,15 +526,18 @@ for /f "usebackq tokens=1 delims=:" %%A in ("val6.th") do (
 	)
 	set "oldDate=%%A"
 )
+echo Made val7.th
 
+echo Making val8.th
 sort /R val7.th>> val8.th
-
+echo Made val8.th
 
 set "searchFile="
 set "dateo="
 set "valo="
 set "concatValoData="
 
+echo Making csv
 for /f %%F in (val8.th) do (
 	set "searchTerm=%%F"
 	set "concatValoData="
@@ -482,7 +558,7 @@ for /f %%F in (val8.th) do (
 	)
 	echo !searchTerm!,!concatValoData!>> ScreenshotCountUp.csv
 )
-
+echo Made csv
 if exist val1.th del val1.th
 if exist val2.th del val2.th
 if exist val3.th del val3.th
@@ -491,6 +567,10 @@ if exist val5.th del val5.th
 if exist val6.th del val6.th
 if exist val7.th del val7.th
 if exist val8.th del val8.th
+if exist rundel%delexeid%.th del rundel%delexeid%.th
+timeout 5 /nobreak > NUL
+exit
+)
 
 
 echo.

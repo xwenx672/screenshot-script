@@ -75,9 +75,6 @@ set updatevals=nodata
 set timer=nodata
 set hrsuntildel=nodata
 set showhide=nodata
-rem set showhidedel=nodata
-rem set showhidecom=nodata
-rem set deldurbef=nodata
 set filetype=nodata
 set multiplier=nodata
 set usc=nodata
@@ -103,14 +100,12 @@ set compressfilesizemin=nodata
 set compsd=nodata
 set ran=nodata
 set ld=nodata
+set delminscreenys=nodata
 
 for /f "tokens=2 delims=:" %%a in ('findstr "updatevals:" "config.cfg"') do set /a updatevals=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "timer:" "config.cfg"') do set /a timer=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "hrsuntildel:" "config.cfg"') do set /a hrsuntildel=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "showhide:" "config.cfg"') do set showhide=%%a
-rem for /f "tokens=2 delims=:" %%a in ('findstr "showhidedel:" "config.cfg"') do set showhidedel=%%a
-rem for /f "tokens=2 delims=:" %%a in ('findstr "showhidecom:" "config.cfg"') do set showhidecom=%%a
-rem for /f "tokens=2 delims=:" %%a in ('findstr "deldurbef:" "config.cfg"') do set /a deldurbef=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "filetype:" "config.cfg"') do set filetype=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "multiplier:" "config.cfg"') do set /a multiplier=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "usc:" "config.cfg"') do set /a usc=%%a
@@ -136,6 +131,7 @@ for /f "tokens=2 delims=:" %%a in ('findstr "compressfilesizemin:" "config.cfg"'
 for /f "tokens=2 delims=:" %%a in ('findstr "compsd:" "config.cfg"') do set /a compsd=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "ran:" "config.cfg"') do set /a ran=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "ld:" "config.cfg"') do set /a ld=%%a
+for /f "tokens=2 delims=:" %%a in ('findstr "delminscreenys:" "config.cfg"') do set /a delminscreenys=%%a
 
 set /a nodataissue=0
 
@@ -143,8 +139,6 @@ if %updatevals% == nodata set /a updatevals=0
 if %timer% == nodata set /a timer=5
 if %hrsuntildel% == nodata set /a hrsuntildel=12
 if %showhide% == nodata set showhide=show
-rem if %showhidedel% == nodata set showhidedel=show
-rem if %deldurbef% == nodata set /a deldurbef=0
 if %filetype% == nodata set filetype=jpg
 if %multiplier% == nodata set /a multiplier=11
 if %usc% == nodata set /a usc=3600
@@ -170,6 +164,7 @@ if %compressfilesizemin% == nodata set /a compressfilesizemin=500
 if %compsd% == nodata set /a compsd=90
 if %ran% == nodata set /a ran=1
 if %ld% == nodata set /a ld=10
+if %delminscreenys% == nodata set /a delminscreenys=50
 
 del config.cfg
 timeout 1 /nobreak > NUL
@@ -188,12 +183,6 @@ echo.>>config.cfg
 echo Show or Hide Main Window show/hide>>config.cfg
 echo showhide:%showhide%>>config.cfg
 echo.>>config.cfg
-rem echo Show or Hide Deleting Window show/hide>>config.cfg
-rem echo showhidedel:%showhidedel%>>config.cfg
-rem echo.>>config.cfg
-rem echo Delete at startup only=0 Delete during computer use=1 >>config.cfg
-rem echo deldurbef:%deldurbef%>>config.cfg
-rem echo.>>config.cfg
 echo File Type>>config.cfg
 echo filetype:%filetype%>>config.cfg
 echo.>>config.cfg
@@ -272,6 +261,10 @@ echo ran:%ran%>>config.cfg
 echo.>>config.cfg
 echo Higher number of loops means the deletions will happen later in to the script after boot.>>config.cfg
 echo ld:%ld%>>config.cfg
+echo.>>config.cfg
+echo If there are less than these screenshots on any date except today's date, they will be deleted.>>config.cfg
+echo Only active if ran is 1.>>config.cfg
+echo delminscreenys:%delminscreenys%>>config.cfg
 echo.>>config.cfg
 timeout 2 /nobreak > NUL
 start backgroundscreenshot.bat

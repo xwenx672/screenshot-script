@@ -5,27 +5,6 @@ set batdir=%~dp0
 pushd "%batdir%"
 set /a findrange=0
 
-rem if exist lastrunsearch.txt (
-rem echo lastrunsearch.txt DOES exist
-rem set /p lastrunsearch=<lastrunsearch.txt
-rem timeout 2 /nobreak > NUL
-rem set /a lastrunsearch=%lastrunsearch%-1
-rem set /a findrange=1
-rem ) else (
-rem echo lastrunsearch.txt DOES NOT exist
-rem set /a findrange=0
-rem set /a lastrunsearch=10
-rem timeout 1 /nobreak > NUL
-rem )
-
-rem if %lastrunsearch% LEQ 0 (
-rem echo lastrunsearch LEQ 0 IS true: %lastrunsearch%
-rem set /a findrange=0
-rem set /a lastrunsearch=10
-rem timeout 1 /nobreak > NUL
-rem ) else (
-rem echo lastrunsearch LEQ 0 NOT true: %lastrunsearch%
-rem )
 
 if exist uppervalue.txt (
 echo uppervalue.txt does exist
@@ -42,9 +21,6 @@ set /p lowervalue=<lowervalue.txt
 set /a findrange=0
 echo lowervalue.txt does NOT exist
 )
-rem echo %lastrunsearch% > lastrunsearch.txt
-
-rem echo lastrunsearch=%lastrunsearch%
 echo.
 
 :loop:
@@ -70,8 +46,37 @@ set /a fileshis=100
 )
 for /f "delims=" %%i in ('dir /a-d /w /b "%cd%\old_archive" ^| find /v /c ""') do set files=%%i
 rem nircmd.exe win hide ititle %~n0
+if %doy% == 0 set /a lastrun=-1 
+if %lastrun% GEQ %doy% (
+echo %lastrun% GEQ %doy% = TRUE
+timeout 10
+exit
+)
 
-if %lastrun% == %doy% exit
+if exist lastrunsearch.txt (
+echo lastrunsearch.txt DOES exist
+set /p lastrunsearch=<lastrunsearch.txt
+timeout 2 /nobreak > NUL
+set /a lastrunsearch-=1
+set /a findrange=1
+) else (
+echo lastrunsearch.txt DOES NOT exist
+set /a findrange=0
+set /a lastrunsearch=10
+timeout 1 /nobreak > NUL
+)
+
+if %lastrunsearch% LEQ 0 (
+echo lastrunsearch LEQ 0 IS true: %lastrunsearch%
+set /a findrange=0
+set /a lastrunsearch=100
+timeout 1 /nobreak > NUL
+) else (
+echo lastrunsearch LEQ 0 NOT true: %lastrunsearch%
+)
+echo %lastrunsearch%>lastrunsearch.txt
+echo lastrunsearch=%lastrunsearch%
+
 
 
 if %files% GTR %fileshis% (
@@ -85,7 +90,7 @@ echo lowervalue=%lowervalue%
 echo uppervalue=%uppervalue%
 echo findrange=%findrange%
 set /a biasval=(%files%/100)
-if %biasval% LSS 500 set /a biasval=500
+if %biasval% LSS 1000 set /a biasval=1000
 
 
 
@@ -95,9 +100,7 @@ if %findrange% NEQ 0 goto endcounting
 
 
 set d=0
-rem set /a low=353000
 set /a low=0
-rem set /a high=1830000
 set /a high=2147483647
 set count3=0
 nircmd.exe win setsize title %~n0 0 0 650 450
@@ -252,10 +255,13 @@ rem -%dt:~8,6%
 rem set "SORTED=%screeny%-ori.th"
 
 setlocal enabledelayedexpansion
+echo Making vali1.th
 powershell -ExecutionPolicy Bypass -File "%batdir%ps.ps1" -progValue 0 -targetFolder "%batdir%old_archive" -csvPath "%cd%\vali1.th"
+echo Made vali1.th
 
+echo Making vali2.th
 sort vali1.th>> vali2.th
-
+echo Made vali2.th
 
 set "currentDate="
 
@@ -284,28 +290,36 @@ if exist "%screeny%screenyarchive.th" move "%screeny%screenyarchive.th" "history
 
 set "currentDate="
 
-
+echo Making vali3.th
 for %%F in (historyarchive\*) do (
     set "fileDate=%%~nF"
     set "fileDate=!fileDate:~0,8!!fileDate:~8,7!"
 	echo !fileDate!>> vali3.th
 )
+echo Made vali3.th
 
+echo Making vali4.th
 sort /R vali3.th>> vali4.th
+echo Made vali4.th
 
 for /f %%F in (vali4.th) do (
     set concatFileDate=!concatFileDate!%%F,
 )
 echo Date of Screenshot\Date of Count,%concatFileDate%>> ScreenshotCountUpArchive.csv
 
+echo Making vali5.th
 for %%F in (historyarchive\*) do (
 	for /f "usebackq tokens=1 delims=:" %%A in ("%%F") do (
 		echo %%A>> vali5.th
 	)
 )
+echo Made vali5.th
 
+echo Making vali6.th
 sort vali5.th>> vali6.th
+echo Made vali6.th
 
+echo Making vali7.th
 set "currentDate="
 set "oldDate="
 for /f "usebackq tokens=1 delims=:" %%A in ("vali6.th") do (
@@ -315,15 +329,17 @@ for /f "usebackq tokens=1 delims=:" %%A in ("vali6.th") do (
 	)
 	set "oldDate=%%A"
 )
+echo Made vali7.th
 
+echo Making vali8.th
 sort /R vali7.th>> vali8.th
-
+echo Made vali8.th
 
 set "searchFile="
 set "dateo="
 set "valo="
 set "concatValoData="
-
+echo Making csv
 for /f %%F in (vali8.th) do (
 	set "searchTerm=%%F"
 	set "concatValoData="
@@ -344,7 +360,7 @@ for /f %%F in (vali8.th) do (
 	)
 	echo !searchTerm!,!concatValoData!>> ScreenshotCountUpArchive.csv
 )
-
+echo Made csv
 if exist vali1.th del vali1.th
 if exist vali2.th del vali2.th
 if exist vali3.th del vali3.th
