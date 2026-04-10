@@ -13,7 +13,7 @@ cls
 timeout 1 /nobreak > NUL
 nircmd.exe win hide ititle %~n0
 
-set "version=v1.24.0"
+set "version=v1.25.0"
 echo Current version: %version%
 echo.
 :essentialfiles:
@@ -253,6 +253,7 @@ set /a sizecount=2000000000
 set /a count=0
 set /a count2=0
 set /a count4=0
+set /a deltxt=0
 set /a count6=0
 set /a lagcompcooldown=0
 set trimscreenyold=nodata
@@ -296,8 +297,9 @@ if exist fullhistory.th attrib +h fullhistory.th
 )
 )
 if exist count.th (
-type count.th>>history.th
-timeout 1 /nobreak > NUL
+set /p tempcount=<count.th
+timeout 3 /nobreak > NUL
+echo !tempcount!>>history.th
 del count.th
 )
 
@@ -312,7 +314,8 @@ if %count6% LEQ %historylog% goto skiphistorydel
 if exist temp.th del temp.th
 set /a count6=%count6%-%historylog%
 for /f "skip=%count6% delims=" %%a in ('type "history.th" ^| findstr "^"') do (
-    echo %%a>>temp.th
+set /a temphis=%%a
+echo !temphis!>>temp.th
 )
 timeout 1 /nobreak > NUL
 del history.th
@@ -371,7 +374,7 @@ rem attrib +h del.th
 rem timeout 1 /nobreak > NUL
 rem )
 rem start "" /B 
-set /a deltxt=0
+rem set /a deltxt=0
 rem set /a deltxt=2
 echo Starting script...
 
@@ -570,6 +573,6 @@ set /a deltxt+=1
 ) else if %deltxt% == %ldplus% (
 start "" /B delete.bat %delamt% %delqty%
 rem start delete.bat %delamt% %delqty%
-set /a deltxt=%ld%+100
+set /a deltxt=%ld%+2
 )
 goto lrmskip

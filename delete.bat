@@ -321,8 +321,9 @@ set countexit=0
 for %%F in ("%batdir%screenshots\%count%*") do (
 set /a "screenysize=%%~zF"
 if %%~zF GTR %compressfilesizemin% (
-start "" /B "%batdir%convert" "%%F" -quality %compressquality% -strip -sharpen 0x0.5 -noise 1 "%batdir%compressed\%%~nxF"
+start "" /B "%batdir%convert" "%%F" -strip -interlace Plane -quality %compressquality% -sampling-factor 4:2:0 -sharpen 0x0.5 -noise 1 "%batdir%compressed\%%~nxF"
 )
+rem "%batdir%convert" "%%F" -quality %compressquality% -strip -sharpen 0x0.5 -noise 1 "%batdir%compressed\%%~nxF"
 )
 if %cpulim% LSS 100 (
 set /p compsd= < cput.th
