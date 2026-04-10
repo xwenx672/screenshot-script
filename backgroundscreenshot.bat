@@ -4,6 +4,7 @@ title %~n0
 set "batdir=%~dp0"
 pushd "%batdir%"
 if exist run*.th del run*.th
+if exist rundel*.th del rundel*.th
 set /a exeid=%random%
 echo deleting this th file will close the script>run%exeid%.th
 set /a countversion=0
@@ -12,7 +13,7 @@ cls
 timeout 1 /nobreak > NUL
 nircmd.exe win hide ititle %~n0
 
-set "version=v1.24.0"
+set "version=v1.25.0"
 echo Current version: %version%
 echo.
 :essentialfiles:
@@ -34,12 +35,6 @@ start update.bat
 exit
 ) else (
 attrib +h convert.exe
-)
-if not exist mogrify.exe (
-start update.bat
-exit
-) else (
-attrib +h mogrify.exe
 )
 if not exist yoke.vbs (
 start update.bat
@@ -118,9 +113,6 @@ set updatevals=nodata
 set timer=nodata
 set hrsuntildel=nodata
 set showhide=nodata
-rem set showhidedel=nodata
-rem set showhidecom=nodata
-rem set deldurbef=nodata
 set filetype=nodata
 set multiplier=nodata
 set usc=nodata
@@ -146,14 +138,12 @@ set compressfilesizemin=nodata
 set compsd=nodata
 set ran=nodata
 set ld=nodata
+set delminscreenys=nodata
 
 for /f "tokens=2 delims=:" %%a in ('findstr "updatevals:" "config.cfg"') do set /a updatevals=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "timer:" "config.cfg"') do set /a timer=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "hrsuntildel:" "config.cfg"') do set /a hrsuntildel=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "showhide:" "config.cfg"') do set showhide=%%a
-rem for /f "tokens=2 delims=:" %%a in ('findstr "showhidedel:" "config.cfg"') do set showhidedel=%%a
-rem for /f "tokens=2 delims=:" %%a in ('findstr "showhidecom:" "config.cfg"') do set showhidecom=%%a
-rem for /f "tokens=2 delims=:" %%a in ('findstr "deldurbef:" "config.cfg"') do set /a deldurbef=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "filetype:" "config.cfg"') do set filetype=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "multiplier:" "config.cfg"') do set /a multiplier=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "usc:" "config.cfg"') do set /a usc=%%a
@@ -179,15 +169,14 @@ for /f "tokens=2 delims=:" %%a in ('findstr "compressfilesizemin:" "config.cfg"'
 for /f "tokens=2 delims=:" %%a in ('findstr "compsd:" "config.cfg"') do set /a compsd=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "ran:" "config.cfg"') do set /a ran=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "ld:" "config.cfg"') do set /a ld=%%a
+for /f "tokens=2 delims=:" %%a in ('findstr "delminscreenys:" "config.cfg"') do set /a delminscreenys=%%a
 
 set /a nodataissue=0
+
 if %updatevals% == nodata set /a nodataissue=1
 if %timer% == nodata set /a nodataissue=1
 if %hrsuntildel% == nodata set /a nodataissue=1
 if %showhide% == nodata set /a nodataissue=1
-rem if %showhidedel% == nodata set /a nodataissue=1
-rem if %showhidecom% == nodata set /a nodataissue=1
-rem if %deldurbef% == nodata set /a nodataissue=1
 if %filetype% == nodata set /a nodataissue=1
 if %multiplier% == nodata set /a nodataissue=1
 if %usc% == nodata set /a nodataissue=1
@@ -213,6 +202,7 @@ if %compressfilesizemin% == nodata set /a nodataissue=1
 if %compsd% == nodata set /a nodataissue=1
 if %ran% == nodata set /a nodataissue=1
 if %ld% == nodata set /a nodataissue=1
+if %delminscreenys% == nodata set /a nodataissue=1
 
 if %nodataissue% == 1 (
 start update.bat
@@ -230,6 +220,7 @@ echo Setting advanced vals...
 if %updatemode% == 0 (
 if exist update0.th attrib -h update0.th
 if exist update1.th attrib -h update1.th
+timeout 1 /nobreak > NUL
 if not exist update0.th echo value0 >update0.th
 if exist update1.th del update1.th
 attrib +h update0.th
@@ -237,6 +228,7 @@ attrib +h update0.th
 if %updatemode% == 1 (
 if exist update0.th attrib -h update0.th
 if exist update1.th attrib -h update1.th
+timeout 1 /nobreak > NUL
 if not exist update1.th echo value1 >update1.th
 if exist update0.th del update0.th
 attrib +h update1.th
@@ -244,6 +236,7 @@ attrib +h update1.th
 if %updatemode% == 2 (
 if exist update0.th attrib -h update0.th
 if exist update1.th attrib -h update1.th
+timeout 1 /nobreak > NUL
 if exist update0.th del update0.th
 if exist update1.th del update1.th
 )
@@ -254,6 +247,7 @@ set /a sizecount=2000000000
 set /a count=0
 set /a count2=0
 set /a count4=0
+set /a deltxt=0
 set /a count6=0
 set /a lagcompcooldown=0
 set trimscreenyold=nodata
@@ -297,8 +291,9 @@ if exist fullhistory.th attrib +h fullhistory.th
 )
 )
 if exist count.th (
-type count.th>>history.th
-timeout 1 /nobreak > NUL
+set /p tempcount=<count.th
+timeout 3 /nobreak > NUL
+echo !tempcount!>>history.th
 del count.th
 )
 
@@ -313,7 +308,8 @@ if %count6% LEQ %historylog% goto skiphistorydel
 if exist temp.th del temp.th
 set /a count6=%count6%-%historylog%
 for /f "skip=%count6% delims=" %%a in ('type "history.th" ^| findstr "^"') do (
-    echo %%a>>temp.th
+set /a temphis=%%a
+echo !temphis!>>temp.th
 )
 timeout 1 /nobreak > NUL
 del history.th
@@ -372,7 +368,7 @@ rem attrib +h del.th
 rem timeout 1 /nobreak > NUL
 rem )
 rem start "" /B 
-set /a deltxt=0
+rem set /a deltxt=0
 rem set /a deltxt=2
 echo Starting script...
 
@@ -432,6 +428,7 @@ for /f "tokens=2 delims=:" %%a in ('findstr "lagcompcooldowncfg:" "config.cfg"')
 for /f "tokens=2 delims=:" %%a in ('findstr "restarttime:" "config.cfg"') do set /a restarttime=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "sizecommandfreq:" "config.cfg"') do set /a sizecommandfreq=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "ran:" "config.cfg"') do set /a ran=%%a
+for /f "tokens=2 delims=:" %%a in ('findstr "delminscreenys:" "config.cfg"') do set /a delminscreenys=%%a
 set /a lrmcapminp1=%lrmcapmin%+1
 )
 
@@ -455,7 +452,6 @@ if %trim% LSS -10000 (
 set /a trim=0
 )
 
-
 set /a sizecount+=1
 if %sizecount% GEQ %sizecommandfreq% (
 set /a lrmcapmaxtemp=1
@@ -470,12 +466,10 @@ set /a trim=%trimcap%
 set /a lagcompcooldown=%lagcompcooldowncfg%
 set /a lrmcapmax=%lrmcapmaxtemp%
 )
-
 if %lrmcapmaxtemp% NEQ 0 (
 for /f "tokens=3 delims=:" %%a in ('findstr "lrmcap:" "config.cfg"') do set /a lrmcapmax=%%a
 set /a lrmcapmaxtemp=0
 )
-
 if %lagcompcooldown% LEQ 0 (
 if %lrmcount% GTR %lrmcapminp1% (
 set /a lrmcount=%lrmcount%-1
@@ -486,11 +480,8 @@ set /a lrmcount=%lrmcount%-1
 )
 )
 )
-
 set /a nircmdtimer=(%timer%*1000)-%trim%
 if %count4% GEQ %usc% echo %count4% >count.th
-
-
 if %count4% GEQ %restarttime% (
 call %~n0
 )
@@ -566,11 +557,6 @@ echo %filetype% >>pasteoutput%screeny%.txt
 start notepad.exe pasteoutput%screeny%.txt
 cd..
 )
-
-
-
-
-
 set /a trimscreenyold=%trimscreenynew%
 if exist ldplus.txt (
 set /a deltxt=%ldplus%
@@ -580,6 +566,7 @@ if %deltxt% LEQ %ld% (
 set /a deltxt+=1
 ) else if %deltxt% == %ldplus% (
 start "" /B delete.bat %delamt% %delqty%
-set /a deltxt=%ld%+100
+rem start delete.bat %delamt% %delqty%
+set /a deltxt=%ld%+2
 )
 goto lrmskip
