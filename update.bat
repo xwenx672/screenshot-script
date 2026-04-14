@@ -17,6 +17,7 @@ echo DO NOT CLOSE...
 :redoconcheck:
 set /a countconnection+=1
 timeout 1 /nobreak > NUL
+title backgroundscreenshot
 ping /n 1 www.github.com > NUL
 
 rem powershell -Command "try { Invoke-WebRequest -Uri 'https://github.com/xwenx672/screenshot-script/archive/refs/heads/%zn%.zip' -UseBasicParsing -TimeoutSec 5 | Out-Null; exit 0 } catch { exit 1 }"

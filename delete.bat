@@ -42,7 +42,7 @@ exit
 echo Daydeleting screenshots older than %maxagedfiles% days...
 
 timeout 1 /nobreak > NUL
-
+title backgroundscreenshot
 forfiles /p "screenshots" /s /m *.* /d -%maxagedfiles% /c "cmd /c echo Deleting @file! && del @path"
 rem cls
 echo.

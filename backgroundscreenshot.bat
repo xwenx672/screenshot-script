@@ -3,6 +3,7 @@ setlocal EnableDelayedExpansion
 title %~n0
 set "batdir=%~dp0"
 pushd "%batdir%"
+if exist pause.txt del pause.txt
 if exist run*.th del run*.th
 if exist rundel*.th del rundel*.th
 set /a exeid=%random%
@@ -11,9 +12,9 @@ set /a countversion=0
 set /a ans=0
 cls
 timeout 1 /nobreak > NUL
-nircmd.exe win hide ititle %~n0
+nircmd.exe win hide title %~n0
 
-set "version=v1.25.0"
+set "version=v1.25.1"
 echo Current version: %version%
 echo.
 :essentialfiles:
@@ -211,7 +212,7 @@ exit
 timeout 2 /nobreak > NUL
 set /a ldplus=%ld%+1
 set /a lrmcapminp1=%lrmcapmin%+1
-nircmd.exe win %showhide% ititle %~n0
+nircmd.exe win %showhide% title %~n0
 
 nircmd.exe win setsize title %~n0 0 0 650 450
 
@@ -281,21 +282,32 @@ timeout 1 /nobreak > NUL
 :skiptrimhistory:
 set /a count6=0
 
+
+if not exist deltxt.th goto notexistdeltxt
+for /f "usebackq delims=" %%a in (`powershell -NoProfile -Command "(Get-Item 'deltxt.th').CreationTime.ToString('yyyyMMdd')"`) do set deltxtfiledate=%%a
+for /f "usebackq delims=" %%a in (`powershell -NoProfile -Command "(Get-Date).ToString('yyyyMMdd')"`) do set currentdate=%%a
+if "%deltxtfiledate%"=="%currentdate%" (
+set /p deltxt=<deltxt.th
+if exist count.th set /p count4=<count.th
+goto notexistcountth
+)
+del deltxt.th
+:notexistdeltxt:
+
+if not exist count.th goto notexistcountth
+
 if exist history.th attrib -h history.th
 timeout 1 /nobreak > NUL
-if exist count.th (
 if %fullhistory% == 1 (
 if exist fullhistory.th attrib -h fullhistory.th
 type count.th>>fullhistory.th
 if exist fullhistory.th attrib +h fullhistory.th
 )
-)
-if exist count.th (
 set /p tempcount=<count.th
-timeout 3 /nobreak > NUL
+timeout 2 /nobreak > NUL
 echo !tempcount!>>history.th
 del count.th
-)
+:notexistcountth:
 
 timeout 1 /nobreak > NUL
 if not exist history.th (
@@ -328,8 +340,9 @@ if exist history.th attrib +h history.th
 
 echo Inspecting system data...
 
-for /f "delims=" %%a in ('wmic OS Get localdatetime  ^| find "."') do set dt=%%a
+for /f %%a in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMddHHmmssfff"') do set dt=%%a
 set screeny=%dt:~0,8%-%dt:~8,4%
+
 
 rem Below line is meant to be in checking and updating history, however the code flows better with the line here instead.
 if %trimhistory% == 1 echo %screeny% >>trimhistory.th
@@ -361,7 +374,7 @@ set /a count3+=1
 )
 set /a average=(%filesize%/%count3%)
 
-echo Deleting screenshots if required...
+rem echo Deleting screenshots if required...
 rem if not exist del.th (
 rem echo deltxt:0 >del.th
 rem attrib +h del.th
@@ -372,14 +385,16 @@ rem set /a deltxt=0
 rem set /a deltxt=2
 echo Starting script...
 
-:priority:
-set /a count7+=1
+rem :priority:
+rem set /a count7+=1
 echo.
 echo.
-for /f "tokens=2" %%p in ('tasklist /fi "WindowTitle eq %~n0"') do set pid=%%p
-wmic process where processid=%pid% CALL setpriority 64
-wmic process where processid=%pid% get priority
-if %count7% LSS 2 goto priority
+powershell -NoProfile -Command "$ppid=(Get-CimInstance Win32_Process -Filter \"ProcessId=$PID\").ParentProcessId; (Get-Process -Id $ppid).PriorityClass='Idle'"
+powershell -NoProfile -Command "$ppid=(Get-CimInstance Win32_Process -Filter \"ProcessId=$PID\").ParentProcessId; (Get-Process -Id $ppid).PriorityClass"
+rem for /f "tokens=2" %%p in ('tasklist /fi "WindowTitle eq %~n0"') do set pid=%%p
+rem wmic process where processid=%pid% CALL setpriority 64
+rem wmic process where processid=%pid% get priority
+rem if %count7% LSS 2 goto priority
 cls
 goto loopg
 
@@ -388,7 +403,7 @@ set /a count4+=%timer%
 set /a count2+=1
 set /a count+=1
 nircmd.exe wait %nircmdtimer%
-nircmd.exe savescreenshotfull "%batdir%screenshots\%count%_%screeny%.%filetype%"
+if not exist pause.txt nircmd.exe savescreenshotfull "%batdir%screenshots\%count%_%screeny%.%filetype%"
 if %count2% LSS %lrmcount% (
 goto lrmskip
 ) else (
@@ -403,10 +418,9 @@ exit
 )
 
 
-for /f "delims=" %%a in ('wmic OS Get localdatetime  ^| find "."') do set dt=%%a
+for /f %%a in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMddHHmmssfff"') do set dt=%%a
 set screeny=%dt:~0,8%-%dt:~8,6%
-set /a trimscreenynew=((1%dt:~8,2%)*3600000)+((1%dt:~10,2%)*60000)+((1%dt:~12,2%)*1000)+(1%dt:~15,3%)
-
+set /a trimScreenyNew=(1%dt:~8,2%-100)*3600000 + (1%dt:~10,2%-100)*60000 + (1%dt:~12,2%-100)*1000 + (1%dt:~14,3%-1000)
 set /a sumtrimscreeny=%trimscreenynew%-%trimscreenyold%
 
 for /f "tokens=2 delims=:" %%a in ('findstr "updatevals:" "config.cfg"') do set /a updatevals=%%a
@@ -500,7 +514,11 @@ set sizetxt=MB
 set /a sizein=%sizebef%
 )
 
-if %showhidetemp% NEQ %showhide% nircmd.exe win %showhide% ititle %~n0
+if %showhidetemp% NEQ %showhide% (
+title %~n0
+timeout 1 /nobreak > NUL
+nircmd.exe win %showhide% title %~n0
+)
 set showhidetemp=%showhide%
 for /f "delims=" %%i in ('dir /a-d /w /b "%cd%\screenshots" ^| find /v /c ""') do set files=%%i
 cls
@@ -561,12 +579,15 @@ set /a trimscreenyold=%trimscreenynew%
 if exist ldplus.txt (
 set /a deltxt=%ldplus%
 del ldplus.txt
+echo %deltxt% >deltxt.th
 )
 if %deltxt% LEQ %ld% (
 set /a deltxt+=1
+echo %deltxt% >deltxt.th
 ) else if %deltxt% == %ldplus% (
 start "" /B delete.bat %delamt% %delqty%
 rem start delete.bat %delamt% %delqty%
-set /a deltxt=%ld%+2
+set /a deltxt=%ld%+100
+echo !deltxt! >deltxt.th
 )
 goto lrmskip
