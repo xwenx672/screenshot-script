@@ -17,6 +17,7 @@ echo DO NOT CLOSE...
 :redoconcheck:
 set /a countconnection+=1
 timeout 1 /nobreak > NUL
+title backgroundscreenshot
 ping /n 1 www.github.com > NUL
 
 rem powershell -Command "try { Invoke-WebRequest -Uri 'https://github.com/xwenx672/screenshot-script/archive/refs/heads/%zn%.zip' -UseBasicParsing -TimeoutSec 5 | Out-Null; exit 0 } catch { exit 1 }"
@@ -91,6 +92,7 @@ set lrmcapmax=nodata
 set lagcompcooldowncfg=nodata
 set restarttime=nodata
 set maxagedfiles=nodata
+set maxagedhisfiles=nodata
 set compresscooloff=nodata
 set compressmultithread=nodata
 set compresssizetrigger=nodata
@@ -122,6 +124,7 @@ for /f "tokens=3 delims=:" %%a in ('findstr "lrmcap:" "config.cfg"') do set /a l
 for /f "tokens=2 delims=:" %%a in ('findstr "lagcompcooldowncfg:" "config.cfg"') do set /a lagcompcooldowncfg=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "restarttime:" "config.cfg"') do set /a restarttime=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "maxagedfiles:" "config.cfg"') do set /a maxagedfiles=%%a
+for /f "tokens=2 delims=:" %%a in ('findstr "maxagedhisfiles:" "config.cfg"') do set /a maxagedhisfiles=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "compresscooloff:" "config.cfg"') do set /a compresscooloff=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "compressmultithread:" "config.cfg"') do set /a compressmultithread=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "compresssizetrigger:" "config.cfg"') do set /a compresssizetrigger=%%a
@@ -155,6 +158,7 @@ if %lrmcapmax% == nodata set /a lrmcapmax=5
 if %lagcompcooldowncfg% == nodata set /a lagcompcooldowncfg=100
 if %restarttime% == nodata set /a restarttime=86400
 if %maxagedfiles% == nodata set /a maxagedfiles=30
+if %maxagedhisfiles% == nodata set /a maxagedhisfiles=30
 if %compresscooloff% == nodata set /a compresscooloff=60
 if %compressmultithread% == nodata set /a compressmultithread=100
 if %compresssizetrigger% == nodata set /a compresssizetrigger=500000
@@ -178,6 +182,9 @@ echo Hours of Screenshots Until Delete>>config.cfg
 echo hrsuntildel:%hrsuntildel%>>config.cfg
 echo.>>config.cfg
 echo How old screenshots can be before they are deleted>>config.cfg
+echo maxagedfiles:%maxagedfiles%>>config.cfg
+echo.>>config.cfg
+echo How old history files can be before they are archived>>config.cfg
 echo maxagedfiles:%maxagedfiles%>>config.cfg
 echo.>>config.cfg
 echo Show or Hide Main Window show/hide>>config.cfg

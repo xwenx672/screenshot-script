@@ -1,5 +1,5 @@
 @echo off
-rem title %~n0
+title backgroundscreenshots
 rem echo 'ERROR' or 'MISSING OPERATOR' text is normal.
 rem echo ########################################
 set /a countexit=0
@@ -39,11 +39,24 @@ echo %delexeid%.th does not exist, exiting delscript.
 timeout 5 /nobreak > NUL
 exit
 )
+
 echo Daydeleting screenshots older than %maxagedfiles% days...
-
 timeout 1 /nobreak > NUL
+if exist pasteoutputs forfiles /p "pasteoutputs" /s /m *.* /d -%maxagedfiles% /c "cmd /c echo Deleting @file && del @path"
+forfiles /p "screenshots" /s /m *.* /d -%maxagedfiles% /c "cmd /c echo Deleting @file && del @path"
 
-forfiles /p "screenshots" /s /m *.* /d -%maxagedfiles% /c "cmd /c echo Deleting @file! && del @path"
+echo.
+
+echo Daymoving history files older than 365 (hardcoded) days...
+if not exist historyoldfiles (
+mkdir historyoldfiles
+timeout 5 /nobreak > NUL
+)
+for /f "tokens=2 delims=:" %%a in ('findstr "maxagedhisfiles:" "config.cfg"') do set maxagedhisfiles=%%a
+timeout 1 /nobreak > NUL
+robocopy "history" "historyoldfiles" "*.th" /S /MINAGE:%maxagedhisfiles% /MOV /R:1 /W:1
+
+
 rem cls
 echo.
 echo Done Daydeleting
