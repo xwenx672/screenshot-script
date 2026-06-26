@@ -185,7 +185,7 @@ echo How old screenshots can be before they are deleted>>config.cfg
 echo maxagedfiles:%maxagedfiles%>>config.cfg
 echo.>>config.cfg
 echo How old history files can be before they are archived>>config.cfg
-echo maxagedfiles:%maxagedfiles%>>config.cfg
+echo maxagedfiles:%maxagedhisfiles%>>config.cfg
 echo.>>config.cfg
 echo Show or Hide Main Window show/hide>>config.cfg
 echo showhide:%showhide%>>config.cfg
