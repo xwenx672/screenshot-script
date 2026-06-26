@@ -130,6 +130,7 @@ set lrmcapmax=nodata
 set lagcompcooldowncfg=nodata
 set restarttime=nodata
 set maxagedfiles=nodata
+set maxagedhisfiles=nodata
 set compresscooloff=nodata
 set compressmultithread=nodata
 set compresssizetrigger=nodata
@@ -161,6 +162,7 @@ for /f "tokens=3 delims=:" %%a in ('findstr "lrmcap:" "config.cfg"') do set /a l
 for /f "tokens=2 delims=:" %%a in ('findstr "lagcompcooldowncfg:" "config.cfg"') do set /a lagcompcooldowncfg=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "restarttime:" "config.cfg"') do set /a restarttime=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "maxagedfiles:" "config.cfg"') do set /a maxagedfiles=%%a
+for /f "tokens=2 delims=:" %%a in ('findstr "maxagedhisfiles:" "config.cfg"') do set /a maxagedhisfiles=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "compresscooloff:" "config.cfg"') do set /a compresscooloff=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "compressmultithread:" "config.cfg"') do set /a compressmultithread=%%a
 for /f "tokens=2 delims=:" %%a in ('findstr "compresssizetrigger:" "config.cfg"') do set /a compresssizetrigger=%%a
@@ -194,6 +196,7 @@ if %lrmcapmax% == nodata set /a nodataissue=1
 if %lagcompcooldowncfg% == nodata set /a nodataissue=1
 if %restarttime% == nodata set /a nodataissue=1
 if %maxagedfiles% == nodata set /a nodataissue=1
+if %maxagedhisfiles% == nodata set /a nodataissue=1
 if %compresscooloff% == nodata set /a nodataissue=1
 if %compressmultithread% == nodata set /a nodataissue=1
 if %compresssizetrigger% == nodata set /a nodataissue=1
@@ -587,6 +590,8 @@ echo %deltxt% >deltxt.th
 ) else if %deltxt% == %ldplus% (
 start "" /B delete.bat %delamt% %delqty%
 rem start delete.bat %delamt% %delqty%
+timeout 2 /nobreak > NUL
+title backgroundscreenshot
 set /a deltxt=%ld%+100
 echo !deltxt! >deltxt.th
 )

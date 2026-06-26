@@ -15,7 +15,6 @@ set /a cput=500
 echo 500 > cput.th
 timeout 2 /nobreak > NUL
 )
-timeout 2 /nobreak > NUL
 title backgroundscreenshot
 :loop:
 rem timeout 1 /nobreak > NUL
