@@ -39,7 +39,26 @@ echo %delexeid%.th does not exist, exiting delscript.
 timeout 5 /nobreak > NUL
 exit
 )
-
+:datecheck:
+echo Checking if datecheck is to run...
+if not exist datecheck.th (
+echo 0 > datecheck.th
+timeout 2 /nobreak > NUL
+)
+set /p datecheck=<datecheck.th
+timeout 2 /nobreak > NUL
+if %datecheck% GTR 7 (
+echo running datecheck
+timeout 2 /nobreak > NUL
+del datecheck.th
+powershell -ExecutionPolicy Bypass -File "%batdir%ps.ps1" -progValue 1 -targetFolder "%batdir%screenshots"
+set /a datecheck=0
+) else (
+echo datecheck=%datecheck% therefore it does not need to run...
+)
+set /a datecheck+=1
+echo %datecheck% > datecheck.th
+echo.
 echo Daydeleting screenshots older than %maxagedfiles% days...
 timeout 1 /nobreak > NUL
 if exist pasteoutputs forfiles /p "pasteoutputs" /s /m *.* /d -%maxagedfiles% /c "cmd /c echo Deleting @file && del @path"
@@ -47,7 +66,7 @@ forfiles /p "screenshots" /s /m *.* /d -%maxagedfiles% /c "cmd /c echo Deleting 
 
 echo.
 
-echo Daymoving history files older than 365 (hardcoded) days...
+echo Daymoving history files older than %maxagedhisfiles% days...
 if not exist historyoldfiles (
 mkdir historyoldfiles
 timeout 5 /nobreak > NUL
@@ -457,7 +476,7 @@ if exist val6.th del val6.th
 if exist val7.th del val7.th
 if exist val8.th del val8.th
 
-for /f "delims=" %%a in ('wmic OS Get localdatetime  ^| find "."') do set dt=%%a
+for /f %%a in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMddHHmmssfff"') do set dt=%%a
 set screeny=%dt:~0,8%-%dt:~8,6%
 if exist "history\%screeny%screeny.th" goto skipscreenycreation
 

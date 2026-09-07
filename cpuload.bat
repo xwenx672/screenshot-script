@@ -22,7 +22,8 @@ for /f "tokens=2 delims=:" %%a in ('findstr "timer:" "config.cfg"') do set /a ti
 for /f "tokens=2 delims=:" %%a in ('findstr "compsd:" "config.cfg"') do set /a cpulim=%%a
 
 set cpul=nothing
-for /f "tokens=2 delims== " %%C in ('wmic cpu get loadpercentage /value') do set /a cpul=%%C
+rem for /f "tokens=2 delims== " %%C in ('wmic cpu get loadpercentage /value') do set /a cpul=%%C
+for /f %%a in ('powershell -NoProfile -Command "(Get-CimInstance Win32_Processor).LoadPercentage"') do set cpul=%%a
 set /a trimcaphalf=%timer%*500
 if not exist compress.th exit
 if %cpul% == nothing goto loop
